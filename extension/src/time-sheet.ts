@@ -1,10 +1,10 @@
-import { deserializeDateOnly, minusDays } from "types/dates";
+import { deserializeDateOnly, minusDays } from './types/dates';
 import {
   TimeCard,
   TimeCardStatus,
   TimeSheet,
   TimeSheetDates,
-} from "types/time-sheet";
+} from './types/time-sheet';
 
 export const isTimeSheetPage = (): boolean => {
   const timeSheetElement = document.querySelector('[data-ffid="TimecardGrid"]');
@@ -14,11 +14,11 @@ export const isTimeSheetPage = (): boolean => {
 
 const getDates = (): TimeSheetDates => {
   const weekEndingElement = document.querySelector(
-    '[data-ffid="weekEnding"] input'
+    '[data-ffid="weekEnding"] input',
   ) as HTMLInputElement;
 
   if (weekEndingElement === null) {
-    throw new Error("Could not find week ending element");
+    throw new Error('Could not find week ending element');
   }
 
   const weekEnding = deserializeDateOnly(weekEndingElement.value);
@@ -39,15 +39,15 @@ const getDates = (): TimeSheetDates => {
 export const getTimeSheet = (): TimeSheet => {
   const timeSheetElement = document.querySelector('[data-ffid="TimecardGrid"]');
   if (timeSheetElement === null) {
-    throw new Error("Could not find time sheet element");
+    throw new Error('Could not find time sheet element');
   }
 
-  const timeCardElements = timeSheetElement.getElementsByTagName("table");
+  const timeCardElements = timeSheetElement.getElementsByTagName('table');
 
   const timeCards: TimeCard[] = [];
 
   for (const [index, timeCardElement] of Array.from(
-    timeCardElements
+    timeCardElements,
   ).entries()) {
     const projectName = getProjectName(timeCardElement);
     if (projectName === null) {
@@ -57,11 +57,11 @@ export const getTimeSheet = (): TimeSheet => {
   }
 
   const weekEndingElement = document.querySelector(
-    '[data-ffid="weekEnding"] input'
+    '[data-ffid="weekEnding"] input',
   ) as HTMLInputElement;
 
   if (weekEndingElement === null) {
-    throw new Error("Could not find week ending element");
+    throw new Error('Could not find week ending element');
   }
 
   return {
@@ -71,20 +71,20 @@ export const getTimeSheet = (): TimeSheet => {
 };
 
 const getProjectName = (timeCardElement: HTMLElement): string | null => {
-  const columns = timeCardElement.getElementsByTagName("td");
+  const columns = timeCardElement.getElementsByTagName('td');
 
   if (columns.length === 0) {
-    throw new Error("Could not find any columns");
+    throw new Error('Could not find any columns');
   }
 
-  const inputElement = columns[1].querySelector("input");
+  const inputElement = columns[1].querySelector('input');
   if (inputElement === null) {
     return null;
   }
 
   const projectName = inputElement.value.trim();
 
-  if (projectName === "") {
+  if (projectName === '') {
     return null;
   }
 
@@ -94,7 +94,7 @@ const getProjectName = (timeCardElement: HTMLElement): string | null => {
 const getTimeCard = (
   timeCardElement: HTMLTableElement,
   projectName: string,
-  index: number
+  index: number,
 ): TimeCard => {
   return {
     index,
@@ -114,20 +114,20 @@ const getTimeCard = (
 
 const getStatus = (timeCardElement: HTMLElement): TimeCardStatus => {
   const statusElement = timeCardElement.querySelector(
-    '[data-columnid="statusId"]'
+    '[data-columnid="statusId"]',
   ) as HTMLElement;
 
   if (statusElement === null) {
-    throw new Error("Could not find status element");
+    throw new Error('Could not find status element');
   }
 
   const status = statusElement.innerText.trim().toLocaleLowerCase();
 
   if (
-    status !== "submitted" &&
-    status !== "saved" &&
-    status !== "unsaved" &&
-    status !== "approved"
+    status !== 'submitted' &&
+    status !== 'saved' &&
+    status !== 'unsaved' &&
+    status !== 'approved'
   ) {
     throw new Error(`Unknown status: ${status}`);
   }
@@ -137,10 +137,10 @@ const getStatus = (timeCardElement: HTMLElement): TimeCardStatus => {
 
 const getDayHours = (
   timecardElement: HTMLElement,
-  dayNumber: number
+  dayNumber: number,
 ): number => {
   const column = timecardElement.querySelector(
-    `[data-columnid="weekDay${dayNumber}"]`
+    `[data-columnid="weekDay${dayNumber}"]`,
   ) as HTMLElement;
   if (column === null) {
     throw new Error(`Could not find column for day ${dayNumber}`);

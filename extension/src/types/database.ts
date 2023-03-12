@@ -9,10 +9,10 @@ export interface DaysFilled {
 }
 
 export type WeekStatus =
-  | "no-time-cards"
-  | "some-unsaved"
-  | "some-unsubmitted"
-  | "all-submitted-or-approved";
+  | 'no-time-cards'
+  | 'some-unsaved'
+  | 'some-unsubmitted'
+  | 'all-submitted-or-approved';
 
 export interface Week {
   status: WeekStatus;
@@ -32,6 +32,12 @@ export interface DatabaseInformation {
   isDatabaseInitialized: boolean;
 }
 
-export const isDatabase = (input: any): input is Database => {
-  return input && input.weeks !== undefined;
+export const isDatabase = (input: unknown): input is Database => {
+  return (
+    input !== undefined &&
+    input !== null &&
+    typeof input === 'object' &&
+    'weeks' in input &&
+    input.weeks !== undefined
+  );
 };
