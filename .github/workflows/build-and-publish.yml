@@ -1,0 +1,59 @@
+name: Build & Publish
+
+on:
+  push:
+    branches: [main]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          path: "repo"
+          fetch-depth: 0
+      - name: Install Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "18"
+      - name: Install Website Dependencies
+        working-directory: repo/website
+        run: npm install
+      - name: Build Website
+        working-directory: repo/website
+        run: npm run build
+      - name: Checkout GH Pages
+        uses: actions/checkout@v2
+        with:
+          ref: "gh-pages"
+          token: "${{ secrets.SERVICE_PAT }}"
+          path: "gh-pages"
+      - name: Remove Existing Docs Directory
+        working-directory: gh-pages
+        run: rm -rf docs
+      - name: Create Docs Directory
+        working-directory: gh-pages
+        run: mkdir -p docs
+      - name: Create CNAME File
+        working-directory: gh-pages
+        run: echo 'www.financialenforcer.com' > docs/CNAME
+      - name: Copy Distribution Folder to Docs
+        run: cp -R repo/website/dist/* gh-pages/docs/
+      - name: Create Version Text File
+        working-directory: gh-pages
+        run: echo "$GITHUB_SHA" > docs/version.txt
+      - name: Stage Pages
+        working-directory: gh-pages/docs
+        run: git add -A
+      - name: Commit Pages
+        working-directory: gh-pages
+        run: |
+          git config --global user.email "financialenforcerapp@gmail.com"
+          git config --global user.name "Financial Enforcer Service Account"
+          git commit -m "Pages for $GITHUB_SHA"
+      - name: Push Pages
+        working-directory: gh-pages
+        run: git push origin gh-pages
