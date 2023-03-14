@@ -1,36 +1,34 @@
-import { getTimeSheet, isTimeSheetPage } from './time-sheet';
-import { TimeSheetStateChange } from './types/state';
-import { TimeSheet } from './types/time-sheet';
-
-const waitFor = (ms: number): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+import { getTimeSheet, isTimeSheetPage } from './time-sheet'
+import { TimeSheetStateChange } from './types/state'
+import { TimeSheet } from './types/time-sheet'
+import { waitFor } from './utils'
 
 const sendTimeSheetStateChange = (timeSheet: TimeSheet | null) => {
   const stateChange: TimeSheetStateChange = {
     type: 'onTimeSheetStateChange',
     timeSheet,
-  };
+  }
 
-  chrome.runtime.sendMessage(stateChange);
-};
+  chrome.runtime.sendMessage(stateChange)
+}
 
 const main = async () => {
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    await waitFor(5000);
-    console.log('Checking for time sheet page...');
+    await waitFor(5000)
+    console.log('Checking for time sheet page...')
 
     if (!isTimeSheetPage()) {
-      sendTimeSheetStateChange(null);
+      sendTimeSheetStateChange(null)
 
-      continue;
+      continue
     }
 
-    const timeSheet = getTimeSheet();
-    sendTimeSheetStateChange(timeSheet);
+    const timeSheet = getTimeSheet()
+    sendTimeSheetStateChange(timeSheet)
   }
-};
+}
 
-main();
+main()
 
-export {};
+export {}

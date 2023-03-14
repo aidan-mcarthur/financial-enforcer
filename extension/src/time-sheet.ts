@@ -1,27 +1,20 @@
-import { deserializeDateOnly, minusDays } from './types/dates';
-import {
-  TimeCard,
-  TimeCardStatus,
-  TimeSheet,
-  TimeSheetDates,
-} from './types/time-sheet';
+import { deserializeDateOnly, minusDays } from './types/dates'
+import { TimeCard, TimeCardStatus, TimeSheet, TimeSheetDates } from './types/time-sheet'
 
 export const isTimeSheetPage = (): boolean => {
-  const timeSheetElement = document.querySelector('[data-ffid="TimecardGrid"]');
-  const weekEndingElement = document.querySelector('[data-ffid="weekEnding"]');
-  return timeSheetElement !== null && weekEndingElement !== null;
-};
+  const timeSheetElement = document.querySelector('[data-ffid="TimecardGrid"]')
+  const weekEndingElement = document.querySelector('[data-ffid="weekEnding"]')
+  return timeSheetElement !== null && weekEndingElement !== null
+}
 
 const getDates = (): TimeSheetDates => {
-  const weekEndingElement = document.querySelector(
-    '[data-ffid="weekEnding"] input',
-  ) as HTMLInputElement;
+  const weekEndingElement = document.querySelector('[data-ffid="weekEnding"] input') as HTMLInputElement
 
   if (weekEndingElement === null) {
-    throw new Error('Could not find week ending element');
+    throw new Error('Could not find week ending element')
   }
 
-  const weekEnding = deserializeDateOnly(weekEndingElement.value);
+  const weekEnding = deserializeDateOnly(weekEndingElement.value)
 
   const dates: TimeSheetDates = {
     monday: minusDays(weekEnding, 6),
@@ -31,71 +24,63 @@ const getDates = (): TimeSheetDates => {
     friday: minusDays(weekEnding, 2),
     saturday: minusDays(weekEnding, 1),
     sunday: minusDays(weekEnding, 0),
-  };
+  }
 
-  return dates;
-};
+  return dates
+}
 
 export const getTimeSheet = (): TimeSheet => {
-  const timeSheetElement = document.querySelector('[data-ffid="TimecardGrid"]');
+  const timeSheetElement = document.querySelector('[data-ffid="TimecardGrid"]')
   if (timeSheetElement === null) {
-    throw new Error('Could not find time sheet element');
+    throw new Error('Could not find time sheet element')
   }
 
-  const timeCardElements = timeSheetElement.getElementsByTagName('table');
+  const timeCardElements = timeSheetElement.getElementsByTagName('table')
 
-  const timeCards: TimeCard[] = [];
+  const timeCards: TimeCard[] = []
 
-  for (const [index, timeCardElement] of Array.from(
-    timeCardElements,
-  ).entries()) {
-    const projectName = getProjectName(timeCardElement);
+  for (const [index, timeCardElement] of Array.from(timeCardElements).entries()) {
+    const projectName = getProjectName(timeCardElement)
     if (projectName === null) {
-      continue;
+      continue
     }
-    timeCards.push(getTimeCard(timeCardElement, projectName, index));
+    timeCards.push(getTimeCard(timeCardElement, projectName, index))
   }
 
-  const weekEndingElement = document.querySelector(
-    '[data-ffid="weekEnding"] input',
-  ) as HTMLInputElement;
+  const weekEndingElement = document.querySelector('[data-ffid="weekEnding"] input') as HTMLInputElement
 
   if (weekEndingElement === null) {
-    throw new Error('Could not find week ending element');
+    throw new Error('Could not find week ending element')
   }
 
   return {
     dates: getDates(),
     timeCards,
-  };
-};
+  }
+}
 
 const getProjectName = (timeCardElement: HTMLElement): string | null => {
-  const columns = timeCardElement.getElementsByTagName('td');
+  const columns = timeCardElement.getElementsByTagName('td')
 
   if (columns.length === 0) {
-    throw new Error('Could not find any columns');
+    throw new Error('Could not find any columns')
   }
 
-  const inputElement = columns[1].querySelector('input');
+  const inputElement = columns[1].querySelector('input')
   if (inputElement === null) {
-    return null;
+    return null
   }
 
-  const projectName = inputElement.value.trim();
+  const projectName = inputElement.value.trim()
 
   if (projectName === '') {
-    return null;
+    return null
   }
 
-  return projectName;
-};
+  return projectName
+}
 
-const getTimeCard = (
-  timeCardElement: HTMLTableElement,
-  projectName: string,
-  index: number,
-): TimeCard => {
+const getTimeCard = (timeCardElement: HTMLTableElement, projectName: string, index: number): TimeCard => {
   return {
     index,
     projectName,
@@ -109,42 +94,30 @@ const getTimeCard = (
       sunday: getDayHours(timeCardElement, 7),
     },
     status: getStatus(timeCardElement),
-  };
-};
+  }
+}
 
 const getStatus = (timeCardElement: HTMLElement): TimeCardStatus => {
-  const statusElement = timeCardElement.querySelector(
-    '[data-columnid="statusId"]',
-  ) as HTMLElement;
+  const statusElement = timeCardElement.querySelector('[data-columnid="statusId"]') as HTMLElement
 
   if (statusElement === null) {
-    throw new Error('Could not find status element');
+    throw new Error('Could not find status element')
   }
 
-  const status = statusElement.innerText.trim().toLocaleLowerCase();
+  const status = statusElement.innerText.trim().toLocaleLowerCase()
 
-  if (
-    status !== 'submitted' &&
-    status !== 'saved' &&
-    status !== 'unsaved' &&
-    status !== 'approved'
-  ) {
-    throw new Error(`Unknown status: ${status}`);
+  if (status !== 'submitted' && status !== 'saved' && status !== 'unsaved' && status !== 'approved') {
+    throw new Error(`Unknown status: ${status}`)
   }
 
-  return status;
-};
+  return status
+}
 
-const getDayHours = (
-  timecardElement: HTMLElement,
-  dayNumber: number,
-): number => {
-  const column = timecardElement.querySelector(
-    `[data-columnid="weekDay${dayNumber}"]`,
-  ) as HTMLElement;
+const getDayHours = (timecardElement: HTMLElement, dayNumber: number): number => {
+  const column = timecardElement.querySelector(`[data-columnid="weekDay${dayNumber}"]`) as HTMLElement
   if (column === null) {
-    throw new Error(`Could not find column for day ${dayNumber}`);
+    throw new Error(`Could not find column for day ${dayNumber}`)
   }
 
-  return parseFloat(column.innerText);
-};
+  return parseFloat(column.innerText)
+}

@@ -1,4 +1,4 @@
-const { createWebpackAliases } = require('./webpack.helpers');
+const { createWebpackAliases } = require('./webpack.helpers')
 
 /**
  * Export Webpack Aliases
@@ -10,4 +10,4 @@ const { createWebpackAliases } = require('./webpack.helpers');
 module.exports = createWebpackAliases({
   '@assets': 'assets',
   '@src': 'src',
-});
+})
