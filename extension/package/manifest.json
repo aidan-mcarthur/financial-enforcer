@@ -2,7 +2,7 @@
   "name": "Financial Enforcer",
   "version": "0.1.0",
   "description": "Helping people fill their timecards out",
-  "permissions": ["declarativeContent", "storage"],
+  "permissions": ["declarativeContent", "storage", "unlimitedStorage"],
   "background": {
     "service_worker": "background.js"
   },
@@ -18,14 +18,15 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://*.lightning.force.com/*",
-        "https://*.vf.force.com/*"
-      ],
+      "matches": ["https://*.lightning.force.com/*", "https://*.vf.force.com/*"],
       "css": [],
       "js": ["content-script.js"],
       "all_frames": true
     }
   ],
+  "options_page": "options.html",
+  "options_ui": {
+    "page": "options.html"
+  },
   "manifest_version": 3
 }
