@@ -1,9 +1,9 @@
-import { DownloadPage } from '@src/pages/download';
-import { HomePage } from '@src/pages/home';
-import React from 'react';
-import { Route } from 'react-router';
-import { HashRouter, Switch } from 'react-router-dom';
-import './app.scss';
+import { DownloadPage } from '@src/pages/download'
+import { HomePage } from '@src/pages/home'
+import React from 'react'
+import { Route } from 'react-router'
+import { HashRouter, Switch } from 'react-router-dom'
+import './app.scss'
 
 const Application: React.FC = () => {
   return (
@@ -13,7 +13,7 @@ const Application: React.FC = () => {
         <Route path='/download' component={DownloadPage} />
       </Switch>
     </HashRouter>
-  );
-};
+  )
+}
 
-export default Application;
+export default Application

@@ -1,5 +1,5 @@
-const { inDev } = require('./webpack.helpers');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { inDev } = require('./webpack.helpers')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 module.exports = [
   {
@@ -16,10 +16,7 @@ module.exports = [
   {
     // CSS Loader
     test: /\.css$/,
-    use: [
-      { loader: inDev() ? 'style-loader' : MiniCssExtractPlugin.loader },
-      { loader: 'css-loader' },
-    ],
+    use: [{ loader: inDev() ? 'style-loader' : MiniCssExtractPlugin.loader }, { loader: 'css-loader' }],
   },
   {
     // SCSS (SASS) Loader
@@ -48,4 +45,4 @@ module.exports = [
       filename: 'assets/[hash][ext][query]',
     },
   },
-];
+]
