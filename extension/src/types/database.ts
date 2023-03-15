@@ -19,6 +19,19 @@ export interface Weeks {
   [key: string]: Week
 }
 
+export const defaultWeekData: Week = {
+  status: 'no-time-cards',
+  daysFilled: {
+    monday: false,
+    tuesday: false,
+    wednesday: false,
+    thursday: false,
+    friday: false,
+    saturday: false,
+    sunday: false,
+  },
+}
+
 export interface Database {
   weeks: Weeks
 }
@@ -29,7 +42,5 @@ export interface DatabaseInformation {
 }
 
 export const isDatabase = (input: unknown): input is Database => {
-  return (
-    input !== undefined && input !== null && typeof input === 'object' && 'weeks' in input && input.weeks !== undefined
-  )
+  return input ? true : false
 }
