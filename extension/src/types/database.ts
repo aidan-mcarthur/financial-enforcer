@@ -1,3 +1,5 @@
+import { Options } from './options'
+
 export interface DaysFilled {
   monday: boolean
   tuesday: boolean
@@ -34,6 +36,7 @@ export const defaultWeekData: Week = {
 
 export interface Database {
   weeks: Weeks
+  options: Options
 }
 
 export interface DatabaseInformation {

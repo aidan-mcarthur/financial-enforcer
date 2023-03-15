@@ -4,7 +4,7 @@
   "description": "Helping people fill their timecards out",
   "permissions": ["declarativeContent", "storage", "unlimitedStorage"],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "service-worker.js"
   },
   "action": {
     "default_icon": {

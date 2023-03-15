@@ -2,10 +2,23 @@
 <html>
   <head>
     <title>My Extension Settings</title>
+    <style>
+      label {
+          display: block;
+      }
+    </style>
   </head>
   <body>
     <h1>My Extension Settings</h1>
     <form id="options">
+      <label>
+        Remind me when my end of week timesheet has not been submitted:
+        <input type="checkbox" id="end-of-week-timesheet-reminder" />
+      </label>
+      <label>
+        Remind me when my I have not filled out my time for the day:
+        <input type="checkbox" id="daily-time-entry-reminder" />
+      </label>
       <label>
         Upload a Sound:
         <input type="file" id="sound-input" />
