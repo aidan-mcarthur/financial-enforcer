@@ -39,6 +39,16 @@ export interface Database {
   options: Options
 }
 
+export const defaultDatabase: Database = {
+  weeks: {},
+  options: {
+    dailyTimeEntryReminder: true,
+    endOfWeekTimesheetReminder: true,
+    gifDataUrl: null,
+    soundDataUrl: null,
+  },
+}
+
 export interface DatabaseInformation {
   database: Database
   isDatabaseInitialized: boolean
