@@ -2,7 +2,7 @@
   "name": "Financial Enforcer",
   "version": "0.1.0",
   "description": "Helping people fill their timecards out",
-  "permissions": ["declarativeContent", "storage", "unlimitedStorage"],
+  "permissions": ["declarativeContent", "storage", "unlimitedStorage", "offscreen"],
   "background": {
     "service_worker": "service-worker.js"
   },

@@ -1,14 +1,17 @@
 import { getDatabase, initializeDatabase } from './database'
+import { GIFStream, parseGIF } from './gifs'
+import { shouldNotifyUser } from './notifications'
 import { onStateChange } from './state-changes'
 import { setIntervalAsync, waitFor } from './utils'
-import { shouldNotifyUser } from './notifications'
-import { GIFStream, parseGIF } from './gifs'
+import { playSound, stopSound } from './offscreen'
 
 const main = async () => {
   await initializeDatabase()
   const gifEventTarget = new EventTarget()
   const soundEventTarget = new EventTarget()
   let isGifPlaying = false
+  let currentSoundId: number | null
+  let isSoundPlaying = false
 
   gifEventTarget.addEventListener('start', async () => {
     if (isGifPlaying) {
@@ -46,6 +49,28 @@ const main = async () => {
 
   gifEventTarget.addEventListener('stop', () => {
     isGifPlaying = false
+  })
+
+  soundEventTarget.addEventListener('start', async () => {
+    if (currentSoundId || isSoundPlaying) {
+      return
+    }
+
+    const database = await getDatabase()
+    if (database.options.soundDataUrl === null) {
+      return
+    }
+
+    isSoundPlaying = true
+    currentSoundId = await playSound(database.options.soundDataUrl, 1)
+  })
+
+  soundEventTarget.addEventListener('stop', async () => {
+    isSoundPlaying = false
+    if (currentSoundId) {
+      await stopSound(currentSoundId)
+      currentSoundId = null
+    }
   })
 
   setIntervalAsync(async () => {

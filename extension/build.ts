@@ -20,7 +20,7 @@ async function build() {
   fs.mkdirSync('dist', { recursive: true })
 
   await esbuild.build({
-    entryPoints: ['src/content-script.ts', 'src/service-worker.ts', 'src/options.ts'],
+    entryPoints: ['src/content-script.ts', 'src/service-worker.ts', 'src/options.ts', 'src/offscreen.ts'],
     bundle: true,
     minify: true,
     keepNames: true,
