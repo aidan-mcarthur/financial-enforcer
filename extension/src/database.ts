@@ -17,9 +17,22 @@ export const initializeDatabase = async () => {
     return
   }
 
+  // todo: revisit defaults
   const database: Database = {
     weeks: {},
+    options: {
+      endOfWeekTimesheetReminder: true,
+      dailyTimeEntryReminder: true,
+      soundDataUrl: null,
+      gifDataUrl: null,
+    },
   }
 
   await chrome.storage.local.set({ database })
+}
+
+export const saveDatabase = async (database: Database): Promise<void> => {
+  await chrome.storage.local.set({
+    database,
+  })
 }
