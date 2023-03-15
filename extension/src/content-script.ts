@@ -19,13 +19,19 @@ const main = async () => {
     console.log('Checking for time sheet page...')
 
     if (!isTimeSheetPage()) {
+      console.log('We are not on the timesheet page')
       sendTimeSheetStateChange(null)
 
       continue
     }
 
-    const timeSheet = getTimeSheet()
-    sendTimeSheetStateChange(timeSheet)
+    try {
+      const timeSheet = getTimeSheet()
+      sendTimeSheetStateChange(timeSheet)
+    } catch (e) {
+      console.warn(e)
+      console.log('Timesheet page detected but user is in an inputting state')
+    }
   }
 }
 
