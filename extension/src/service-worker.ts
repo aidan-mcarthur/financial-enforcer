@@ -8,8 +8,14 @@ import { onStateChange } from './state-changes'
 import { GIF } from './types/gifs'
 import { setIntervalAsync } from './utils'
 
+let running = false
+
 const main = async () => {
-  console.log('Calling main')
+  if (running) {
+    return
+  }
+
+  running = true
   await initializeDatabase()
 
   let lastGifDataUrl: string | null = null
@@ -30,18 +36,15 @@ const main = async () => {
       }
     }
 
-    const cancelGif = () => {
+    const cancelGif = async () => {
       if (gifIsRunning()) {
         gifShouldCancel = true
+      } else if (gif) {
+        await chrome.action.setIcon({ imageData: gif.frameData[0].image })
       }
     }
 
-    if (!shouldNotify) {
-      await cancelSound()
-      cancelGif()
-      return true
-    }
-
+    let newGifLoaded = false
     const database = await getDatabase()
 
     if (database.options.gifDataUrl !== null && database.options.gifDataUrl !== lastGifDataUrl) {
@@ -50,7 +53,17 @@ const main = async () => {
       const arrayBuffer = await response.arrayBuffer()
       const gifStream = new GIFStream(new Uint8Array(arrayBuffer))
       gif = parseGIF(gifStream)
-      cancelGif()
+      newGifLoaded = true
+    }
+
+    if (!shouldNotify) {
+      await cancelSound()
+      await cancelGif()
+      return true
+    }
+
+    if (newGifLoaded) {
+      await cancelGif()
     }
 
     if (database.options.soundDataUrl !== null && database.options.soundDataUrl !== lastSoundDataUrl) {
@@ -75,6 +88,8 @@ const main = async () => {
     return true
   }, 50)
 }
+
+main()
 
 chrome.runtime.onStartup.addListener(main)
 chrome.runtime.onInstalled.addListener(main)
