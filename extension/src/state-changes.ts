@@ -18,11 +18,6 @@ export const onStateChange = async (
   }
 
   const database = await getDatabase()
-
-  if (database === null) {
-    throw new Error('Database is not initialized, but it should be.')
-  }
-
   const mondaySerialized = serializeDateOnly(request.timeSheet.dates.monday)
 
   database.weeks[mondaySerialized] = {

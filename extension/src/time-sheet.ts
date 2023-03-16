@@ -119,5 +119,16 @@ const getDayHours = (timecardElement: HTMLElement, dayNumber: number): number =>
     throw new Error(`Could not find column for day ${dayNumber}`)
   }
 
-  return parseFloat(column.innerText)
+  let hours = 0
+
+  try {
+    hours = parseFloat(column.innerText)
+    if (isNaN(hours)) {
+      hours = 0
+    }
+  } catch (e) {
+    hours = 0
+  }
+
+  return hours
 }

@@ -1,6 +1,6 @@
 import { getTimeSheet, isTimeSheetPage } from './time-sheet'
 import { TimeSheetStateChange } from './types/state'
-import { TimeSheet } from './types/time-sheet'
+import { isTimeSheetEqual, TimeSheet } from './types/time-sheet'
 import { waitFor } from './utils'
 
 const sendTimeSheetStateChange = (timeSheet: TimeSheet | null) => {
@@ -13,6 +13,8 @@ const sendTimeSheetStateChange = (timeSheet: TimeSheet | null) => {
 }
 
 const main = async () => {
+  let lastTimeSheetUpdate: TimeSheet | null = null
+
   // eslint-disable-next-line no-constant-condition
   while (true) {
     await waitFor(5000)
@@ -27,7 +29,12 @@ const main = async () => {
 
     try {
       const timeSheet = getTimeSheet()
-      sendTimeSheetStateChange(timeSheet)
+
+      if (!isTimeSheetEqual(timeSheet, lastTimeSheetUpdate)) {
+        console.log('Sending a timesheet update due to state change.', timeSheet)
+        sendTimeSheetStateChange(timeSheet)
+        lastTimeSheetUpdate = timeSheet
+      }
     } catch (e) {
       console.warn(e)
       console.log('Timesheet page detected but user is in an inputting state')

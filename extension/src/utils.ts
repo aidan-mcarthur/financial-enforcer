@@ -1,3 +1,5 @@
+import { BackgroundTaskState, CancelBackgroundTaskFn } from './background-task'
+
 export const waitFor = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
 export type AsyncInterfaceFn = () => Promise<boolean>
@@ -26,19 +28,6 @@ export const setIntervalAsync = (fn: AsyncInterfaceFn, ms: number): CancelAsyncI
   }
 }
 
-export type CancelBackgroundTaskFn = () => void
-
-interface DelayBackgroundTaskState {
-  type: 'delay'
-  delay: number
-}
-
-interface DoneBackgroundTaskState {
-  type: 'done'
-}
-
-type BackgroundTaskState = DelayBackgroundTaskState | DoneBackgroundTaskState
-
 export const createLoopingBackgroundTask = <TState extends BackgroundTaskState>(
   initialState: TState,
   fn: (state: TState) => Promise<TState>,
@@ -61,4 +50,13 @@ export const createLoopingBackgroundTask = <TState extends BackgroundTaskState>(
   return () => {
     isCancelled = true
   }
+}
+
+export const isRoughlyEqualNumber = (first: number, second: number, tolerance = 0.01) => {
+  if (isNaN(first) || isNaN(second)) {
+    return false
+  }
+
+  const difference = Math.abs(first - second)
+  return difference <= tolerance
 }
