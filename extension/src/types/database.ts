@@ -44,8 +44,8 @@ export const defaultDatabase: Database = {
   options: {
     dailyTimeEntryReminder: true,
     endOfWeekTimesheetReminder: true,
-    gifDataUrl: null,
-    soundDataUrl: null,
+    gifDataUrl: 'gifs/preset-1.gif',
+    soundDataUrl: 'sounds/preset-1.wav',
   },
 }
 
