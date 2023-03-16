@@ -9,6 +9,7 @@ import { GIF } from './types/gifs'
 import { setIntervalAsync } from './utils'
 
 const main = async () => {
+  console.log('Calling main')
   await initializeDatabase()
 
   let lastGifDataUrl: string | null = null
@@ -75,8 +76,8 @@ const main = async () => {
   }, 50)
 }
 
-main()
-
+chrome.runtime.onStartup.addListener(main)
+chrome.runtime.onInstalled.addListener(main)
 chrome.runtime.onMessage.addListener(onStateChange)
 
 export {}
