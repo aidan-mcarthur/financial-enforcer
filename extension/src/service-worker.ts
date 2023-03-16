@@ -1,87 +1,74 @@
+import { animatedIcon } from './animated-icon'
+import { executeBackgroundTask } from './background-task'
 import { getDatabase, initializeDatabase } from './database'
 import { GIFStream, parseGIF } from './gifs'
 import { shouldNotifyUser } from './notifications'
-import { onStateChange } from './state-changes'
-import { setIntervalAsync, waitFor } from './utils'
 import { playSound, stopSound } from './offscreen'
+import { onStateChange } from './state-changes'
+import { GIF } from './types/gifs'
+import { setIntervalAsync } from './utils'
 
 const main = async () => {
   await initializeDatabase()
-  const gifEventTarget = new EventTarget()
-  const soundEventTarget = new EventTarget()
-  let isGifPlaying = false
-  let currentSoundId: number | null
-  let isSoundPlaying = false
 
-  gifEventTarget.addEventListener('start', async () => {
-    if (isGifPlaying) {
-      return
-    }
+  let lastGifDataUrl: string | null = null
+  let gifIsRunning = () => false
+  let gifShouldCancel = false
+  let gif: GIF | null = null
 
-    const database = await getDatabase()
-    if (database.options.gifDataUrl === null) {
-      return
-    }
-
-    isGifPlaying = true
-
-    const response = await fetch(database.options.gifDataUrl)
-    const arrayBuffer = await response.arrayBuffer()
-    const gifStream = new GIFStream(new Uint8Array(arrayBuffer))
-    const gif = parseGIF(gifStream)
-
-    let frameNumber = 0
-
-    while (isGifPlaying) {
-      await chrome.action.setIcon({
-        imageData: gif.frameData[frameNumber].image,
-      })
-
-      await waitFor(gif.frameData[frameNumber].delay * 10)
-
-      frameNumber += 1
-
-      if (frameNumber >= gif.frameData.length) {
-        frameNumber = 0
-      }
-    }
-  })
-
-  gifEventTarget.addEventListener('stop', () => {
-    isGifPlaying = false
-  })
-
-  soundEventTarget.addEventListener('start', async () => {
-    if (currentSoundId || isSoundPlaying) {
-      return
-    }
-
-    const database = await getDatabase()
-    if (database.options.soundDataUrl === null) {
-      return
-    }
-
-    isSoundPlaying = true
-    currentSoundId = await playSound(database.options.soundDataUrl, 1)
-  })
-
-  soundEventTarget.addEventListener('stop', async () => {
-    isSoundPlaying = false
-    if (currentSoundId) {
-      await stopSound(currentSoundId)
-      currentSoundId = null
-    }
-  })
+  let lastSoundDataUrl: string | null = null
+  let soundPlayingId = 0
 
   setIntervalAsync(async () => {
     const shouldNotify = await shouldNotifyUser()
 
+    const cancelSound = async () => {
+      if (soundPlayingId) {
+        await stopSound(soundPlayingId)
+        soundPlayingId = 0
+      }
+    }
+
+    const cancelGif = () => {
+      if (gifIsRunning()) {
+        gifShouldCancel = true
+      }
+    }
+
+    if (!shouldNotify) {
+      await cancelSound()
+      cancelGif()
+      return true
+    }
+
+    const database = await getDatabase()
+
+    if (database.options.gifDataUrl !== null && database.options.gifDataUrl !== lastGifDataUrl) {
+      lastGifDataUrl = database.options.gifDataUrl
+      const response = await fetch(database.options.gifDataUrl)
+      const arrayBuffer = await response.arrayBuffer()
+      const gifStream = new GIFStream(new Uint8Array(arrayBuffer))
+      gif = parseGIF(gifStream)
+      cancelGif()
+    }
+
+    if (database.options.soundDataUrl !== null && database.options.soundDataUrl !== lastSoundDataUrl) {
+      lastSoundDataUrl = database.options.soundDataUrl
+      cancelSound()
+    }
+
     if (shouldNotify) {
-      gifEventTarget.dispatchEvent(new Event('start'))
-      soundEventTarget.dispatchEvent(new Event('start'))
-    } else {
-      gifEventTarget.dispatchEvent(new Event('stop'))
-      soundEventTarget.dispatchEvent(new Event('stop'))
+      if (!gifIsRunning() && gif !== null) {
+        gifIsRunning = executeBackgroundTask({
+          task: animatedIcon(gif),
+          checkCancellationFunction: () => gifShouldCancel,
+          onDoneFunction: () => (gifShouldCancel = false),
+        })
+      }
+
+      if (!soundPlayingId && database.options.soundDataUrl !== null) {
+        soundPlayingId = await playSound(database.options.soundDataUrl, 1)
+      }
     }
 
     return true
