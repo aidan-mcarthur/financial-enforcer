@@ -13,6 +13,10 @@ export const serializeDateOnly = (date: DateOnly): string => {
   return `${month}/${day}/${date.year}`
 }
 
+export const isDateOnlyEqual = (first: DateOnly, second: DateOnly) => {
+  return first.month === second.month && first.day === second.day && first.year === second.year
+}
+
 export const deserializeDateOnly = (date: string): DateOnly => {
   const parts = date.split('/')
 
