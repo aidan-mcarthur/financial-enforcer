@@ -4,7 +4,60 @@
     <title>My Extension Settings</title>
     <style>
       label {
-          display: block;
+        display: block;
+      }
+
+      #gif-selector {
+        display: grid;
+        grid-template-columns: repeat(4, 36px);
+        justify-content: space-evenly;
+        gap: 36px;
+      }
+
+      #gif-selector img {
+        width: 32px;
+        height: 32px;
+        border: 2px solid transparent;
+        cursor: pointer;
+      }
+
+      #gif-selector img.selected {
+        border: 2px solid red;
+      }
+
+      #gif-input-label {
+        width: 34px;
+        height: 34px;
+        cursor: pointer;
+      }
+
+      #gif-input {
+        display: none;
+      }
+
+      #gif-input-add-icon {
+        width: 34px;
+        height: 34px;
+        background: black;
+
+        border-radius: 50%;
+        width: 34px;
+        height: 34px;
+        background-color: rgb(44, 108, 128);
+      }
+
+      #gif-input-add-icon::before {
+        content: '+';
+        height: 34px;
+        width: 34px;
+        font-size: 34px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-family: courier;
+        color: white;
       }
     </style>
   </head>
@@ -23,10 +76,7 @@
         Upload a Sound:
         <input type="file" id="sound-input" />
       </label>
-      <label>
-        Upload a GIF Icon:
-        <input type="file" id="gif-input" />
-      </label>
+      <div id="gif-selector"></div>
       <label>
         <input type="submit" value="Save" />
       </label>

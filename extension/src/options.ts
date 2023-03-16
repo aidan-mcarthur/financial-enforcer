@@ -35,14 +35,106 @@ const main = async () => {
   const endOfWeekTimesheetReminder = document.getElementById('end-of-week-timesheet-reminder') as HTMLInputElement
   const dailyTimeEntryReminder = document.getElementById('daily-time-entry-reminder') as HTMLInputElement
   const soundInput = document.getElementById('sound-input') as HTMLInputElement
-  const gifInput = document.getElementById('gif-input') as HTMLInputElement
 
-  if (!form || !endOfWeekTimesheetReminder || !dailyTimeEntryReminder || !soundInput || !gifInput) {
+  const gifSelector = document.getElementById('gif-selector') as HTMLDivElement
+
+  if (!form || !endOfWeekTimesheetReminder || !dailyTimeEntryReminder || !soundInput || !gifSelector) {
     throw new Error('Unable to find options form')
   }
 
+  const presetGifsCount = 16
+  const gifImageElements: HTMLImageElement[] = []
+  let selectedGifImageElement: HTMLImageElement
+
+  const removeSelectedFromAll = () => {
+    for (const gifImageElement of gifImageElements) {
+      gifImageElement.classList.remove('selected')
+    }
+  }
+
+  const selectGif = (gifPreview: HTMLImageElement) => {
+    removeSelectedFromAll()
+    gifPreview.classList.add('selected')
+    selectedGifImageElement = gifPreview
+  }
+
+  const createSingleGif = (
+    source: string,
+    title: string,
+    isSelected: boolean,
+    isCustomInput: boolean,
+  ): HTMLImageElement => {
+    const presetSrc = source
+
+    const presetGif = document.createElement('img') as HTMLImageElement
+    gifImageElements.push(presetGif)
+
+    if (isSelected) {
+      selectGif(presetGif)
+    }
+
+    presetGif.src = presetSrc
+    presetGif.title = title
+    gifSelector.appendChild(presetGif)
+
+    if (isCustomInput) {
+      presetGif.classList.add('custom-input')
+    }
+
+    presetGif.onclick = () => selectGif(presetGif)
+    return presetGif
+  }
+
+  for (let presetGifNumber = 1; presetGifNumber <= presetGifsCount; presetGifNumber++) {
+    createSingleGif(
+      `gifs/preset-${presetGifNumber}.gif`,
+      `Preset ${presetGifNumber}`,
+      database.options.gifDataUrl !== null &&
+        !database.options.gifDataUrl?.startsWith('data:') &&
+        database.options.gifDataUrl.endsWith(`gifs/preset-${presetGifNumber}.gif`),
+      false,
+    )
+  }
+
+  if (database.options.gifDataUrl !== null && database.options.gifDataUrl.startsWith('data:')) {
+    createSingleGif(database.options.gifDataUrl, `Your Upload`, true, false)
+  }
+
+  const gifInputLabel = document.createElement('label')
+  gifInputLabel.id = 'gif-input-label'
+
+  const gifAddIcon = document.createElement('div')
+  gifAddIcon.id = 'gif-input-add-icon'
+  gifInputLabel.appendChild(gifAddIcon)
+
+  const gifInput = document.createElement('input')
+  gifInput.type = 'file'
+  gifInput.id = 'gif-input'
+  gifInputLabel.appendChild(gifInput)
+
+  gifSelector.appendChild(gifInputLabel)
+
   endOfWeekTimesheetReminder.checked = database.options.endOfWeekTimesheetReminder
   dailyTimeEntryReminder.checked = database.options.dailyTimeEntryReminder
+
+  let customGifPreview: HTMLImageElement | null = null
+
+  gifInput.addEventListener('change', async () => {
+    if (gifInput.files === null || !gifInput.files.length) {
+      return
+    }
+
+    removeSelectedFromAll()
+    const dataUrl = await readAsDataUrlAsync(gifInput)
+
+    if (customGifPreview === null) {
+      customGifPreview = createSingleGif(dataUrl, gifInput.files[0].name, true, true)
+      gifSelector.insertBefore(customGifPreview, gifInputLabel)
+    } else {
+      customGifPreview.src = dataUrl
+      selectGif(customGifPreview)
+    }
+  })
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault()
@@ -54,8 +146,10 @@ const main = async () => {
       soundDataUrl = await readAsDataUrlAsync(soundInput)
     }
 
-    if (gifInput.files && gifInput.files.length) {
+    if (selectedGifImageElement.src.startsWith('data:')) {
       gifDataUrl = await readAsDataUrlAsync(gifInput)
+    } else {
+      gifDataUrl = selectedGifImageElement.src
     }
 
     await saveDatabase({
