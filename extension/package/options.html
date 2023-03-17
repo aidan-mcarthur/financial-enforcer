@@ -9,9 +9,11 @@
 
       #gif-selector {
         display: grid;
-        grid-template-columns: repeat(4, 36px);
-        justify-content: space-evenly;
-        gap: 36px;
+        grid-template-columns: repeat(8, 36px);
+        justify-content: space-between;
+        width: calc((36px * 8) + (7 * 12px));
+        row-gap: 12px;
+        margin: 12px auto;
       }
 
       #gif-selector img {
