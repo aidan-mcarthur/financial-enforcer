@@ -13,12 +13,18 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          path: "repo"
+          path: 'repo'
           fetch-depth: 0
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: "18"
+          node-version: '18'
+      - name: Install Extension Dependencies
+        working-directory: repo/extension
+        run: npm install
+      - name: Build Extension
+        working-directory: repo/extension
+        run: npm run build
       - name: Install Website Dependencies
         working-directory: repo/website
         run: npm install
@@ -28,9 +34,9 @@ jobs:
       - name: Checkout GH Pages
         uses: actions/checkout@v2
         with:
-          ref: "gh-pages"
-          token: "${{ secrets.SERVICE_PAT }}"
-          path: "gh-pages"
+          ref: 'gh-pages'
+          token: '${{ secrets.SERVICE_PAT }}'
+          path: 'gh-pages'
       - name: Remove Existing Docs Directory
         working-directory: gh-pages
         run: rm -rf docs
@@ -44,7 +50,15 @@ jobs:
         run: cp -R repo/website/dist/* gh-pages/docs/
       - name: Create Version Text File
         working-directory: gh-pages
-        run: echo "$GITHUB_SHA" > docs/version.txt
+        run: |
+          echo "$GITHUB_SHA" > docs/version.txt
+          echo "$GITHUB_SHA" > repo/extension/dist/version.txt
+      - name: ZIP Extension
+        working-directory: repo/extension/dist
+        run: zip -r extension.zip .
+      - name: Copy Extension to Docs
+        working-directory: repo/extension/dist
+        run: cp repo/extension/dist/extension.zip gh-pages/docs/extension.zip
       - name: Stage Pages
         working-directory: gh-pages/docs
         run: git add -A
