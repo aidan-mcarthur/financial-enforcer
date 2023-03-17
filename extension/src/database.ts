@@ -24,7 +24,7 @@ export const getDatabase = async (): Promise<Database> => {
       options: {
         dailyTimeEntryReminder: optionalBool(uncheckedDatabase?.options?.dailyTimeEntryReminder, true),
         endOfWeekTimesheetReminder: optionalBool(uncheckedDatabase?.options?.endOfWeekTimesheetReminder, true),
-        gifDataUrl: uncheckedDatabase?.options?.gifDataUrl || 'gifs/preset-1.gif',
+        gifDataUrl: uncheckedDatabase?.options?.gifDataUrl || 'gifs/financial-enforcer.gif',
         soundDataUrl: uncheckedDatabase?.options?.soundDataUrl || 'sounds/preset-1.wav',
       },
     }
