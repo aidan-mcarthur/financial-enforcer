@@ -2,79 +2,30 @@
 <html>
   <head>
     <title>My Extension Settings</title>
-    <style>
-      label {
-        display: block;
-      }
-
-      #gif-selector {
-        display: grid;
-        grid-template-columns: repeat(8, 36px);
-        justify-content: space-between;
-        width: calc((36px * 8) + (7 * 12px));
-        row-gap: 12px;
-        margin: 12px auto;
-      }
-
-      #gif-selector img {
-        width: 32px;
-        height: 32px;
-        border: 2px solid transparent;
-        cursor: pointer;
-      }
-
-      #gif-selector img.selected {
-        border: 2px solid red;
-      }
-
-      #gif-input-label {
-        width: 34px;
-        height: 34px;
-        cursor: pointer;
-      }
-
-      #gif-input {
-        display: none;
-      }
-
-      #gif-input-add-icon {
-        width: 34px;
-        height: 34px;
-        background: black;
-
-        border-radius: 50%;
-        width: 34px;
-        height: 34px;
-        background-color: rgb(44, 108, 128);
-      }
-
-      #gif-input-add-icon::before {
-        content: '+';
-        height: 34px;
-        width: 34px;
-        font-size: 34px;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        font-family: courier;
-        color: white;
-      }
-    </style>
+    <link rel="stylesheet" href="reset.css" />
+    <link rel="stylesheet" href="options.css" />
   </head>
   <body>
-    <h1>My Extension Settings</h1>
     <form id="options">
-      <label>
-        Remind me when my end of week timesheet has not been submitted:
-        <input type="checkbox" id="end-of-week-timesheet-reminder" />
+      <label class="row">
+        <p>End of week reminders</p>
+
+        <div class="checkbox-wrapper">
+          <input type="checkbox" id="end-of-week-timesheet-reminder" />
+          <label for="end-of-week-timesheet-reminder" class="toggle"><span></span></label>
+        </div>
       </label>
-      <label>
-        Remind me when my I have not filled out my time for the day:
-        <input type="checkbox" id="daily-time-entry-reminder" />
+
+      <label class="row">
+        <p>Daily reminders</p>
+
+        <div class="checkbox-wrapper">
+          <input type="checkbox" id="daily-time-entry-reminder" />
+          <label for="daily-time-entry-reminder" class="toggle"><span></span></label>
+        </div>
       </label>
-      <label>
+
+      <label class="row">
         Upload a Sound:
         <input type="file" id="sound-input" />
       </label>
