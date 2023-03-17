@@ -53,10 +53,26 @@ jobs:
           echo "$GITHUB_SHA" > gh-pages/docs/version.txt
           echo "$GITHUB_SHA" > repo/extension/dist/version.txt
       - name: ZIP Extension
-        working-directory: repo/extension/dist
-        run: zip -r extension.zip .
+        working-directory: repo/extension
+        run: |
+          FE_SHORT_COMMIT_HASH=$(git rev-parse --short HEAD)
+          echo "Short commit hash is $FE_SHORT_COMMIT_HASH"
+
+          FE_LONG_COMMIT_HASH=$(git rev-parse HEAD)
+          echo "Long commit hash is $FE_LONG_COMMIT_HASH"
+          echo "FE_LONG_COMMIT_HASH=$FE_LONG_COMMIT_HASH" >> $GITHUB_ENV
+
+          npm run package "$FE_SHORT_COMMIT_HASH"
+
+          FE_ZIP_NAME=$(ls financial-enforcer-*.zip)
+          echo "ZIP name is $FE_ZIP_NAME"
+          echo "FE_ZIP_NAME=$FE_ZIP_NAME" >> $GITHUB_ENV
+
+          FE_TAG=$(echo "$FE_ZIP_NAME" | sed 's/.*-\([0-9\.]*-[^\.]*\)\..*/\1/')
+          echo "Tag is $FE_TAG"
+          echo "FE_TAG=$FE_TAG" >> $GITHUB_ENV
       - name: Copy Extension to Docs
-        run: cp repo/extension/dist/extension.zip gh-pages/docs/extension.zip
+        run: cp repo/extension/financial-enforcer-*.zip gh-pages/docs/financial-enforcer.zip
       - name: Stage Pages
         working-directory: gh-pages/docs
         run: git add -A
@@ -69,3 +85,20 @@ jobs:
       - name: Push Pages
         working-directory: gh-pages
         run: git push origin gh-pages
+      - name: 'Upload ZIP as Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: 'repo/extension/${{ env.FE_ZIP_NAME }}'
+          retention-days: 90
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body: 'See the commit hash for information.'
+          token: ${{ secrets.SERVICE_PAT }}
+          tag_name: '${{ env.FE_TAG }}'
+          target_commitish: '${{ env.FE_LONG_COMMIT_HASH }}'
+          name: '${{ env.FE_TAG }}'
+          files: 'repo/extension/${{ env.FE_ZIP_NAME }}'
+        env:
+          GITHUB_REPOSITORY: FinancialEnforcer/financial-enforcer

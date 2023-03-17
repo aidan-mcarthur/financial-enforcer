@@ -3,13 +3,16 @@
   "private": true,
   "scripts": {
     "build": "tsc && ts-node build.ts",
-    "lint": "eslint --ext .js,.jsx,.ts,.tsx src/"
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx src/",
+    "package": "ts-node package.ts"
   },
   "devDependencies": {
+    "@types/archiver": "5.3.2",
     "@types/chrome": "^0.0.221",
     "@types/node": "18.15.0",
     "@typescript-eslint/eslint-plugin": "5.54.1",
     "@typescript-eslint/parser": "5.54.1",
+    "archiver": "5.3.1",
     "esbuild": "0.17.11",
     "eslint": "8.36.0",
     "eslint-import-resolver-alias": "1.1.2",
