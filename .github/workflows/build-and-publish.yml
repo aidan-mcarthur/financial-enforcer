@@ -49,15 +49,13 @@ jobs:
       - name: Copy Distribution Folder to Docs
         run: cp -R repo/website/dist/* gh-pages/docs/
       - name: Create Version Text File
-        working-directory: gh-pages
         run: |
-          echo "$GITHUB_SHA" > docs/version.txt
+          echo "$GITHUB_SHA" > gh-pages/docs/version.txt
           echo "$GITHUB_SHA" > repo/extension/dist/version.txt
       - name: ZIP Extension
         working-directory: repo/extension/dist
         run: zip -r extension.zip .
       - name: Copy Extension to Docs
-        working-directory: repo/extension/dist
         run: cp repo/extension/dist/extension.zip gh-pages/docs/extension.zip
       - name: Stage Pages
         working-directory: gh-pages/docs
