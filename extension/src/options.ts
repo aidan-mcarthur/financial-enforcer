@@ -28,6 +28,10 @@ const readAsDataUrlAsync = async (input: HTMLInputElement): Promise<string> => {
   })
 }
 
+interface PresetDetailSingle {
+  url: string
+  title: string
+}
 const main = async () => {
   const database = await getDatabase()
 
@@ -85,13 +89,27 @@ const main = async () => {
     return presetGif
   }
 
+  const presetGifDetails: PresetDetailSingle[] = [
+    {
+      url: 'gifs/financial-enforcer.gif',
+      title: 'Financial Enforcer',
+    },
+  ]
+
   for (let presetGifNumber = 1; presetGifNumber <= presetGifsCount; presetGifNumber++) {
+    presetGifDetails.push({
+      url: `gifs/preset-${presetGifNumber}.gif`,
+      title: `Preset ${presetGifNumber}`,
+    })
+  }
+
+  for (const presetGifDetailsSingle of presetGifDetails) {
     createSingleGif(
-      `gifs/preset-${presetGifNumber}.gif`,
-      `Preset ${presetGifNumber}`,
+      presetGifDetailsSingle.url,
+      presetGifDetailsSingle.title,
       database.options.gifDataUrl !== null &&
         !database.options.gifDataUrl?.startsWith('data:') &&
-        database.options.gifDataUrl.endsWith(`gifs/preset-${presetGifNumber}.gif`),
+        database.options.gifDataUrl.endsWith(presetGifDetailsSingle.url),
       false,
     )
   }
