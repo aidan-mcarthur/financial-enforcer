@@ -1,5 +1,6 @@
-import { getExtensionOptions } from '../storage/extension-options'
-import { determineDaysFilledFromTimeCards, determineWeekStatusFromTimeCards, getTimeSheet } from '../storage/time-sheet'
+import { getExtensionOptions } from '../extension-options/storage'
+import { getTimeSheet } from '../time-sheets/storage'
+import { summarizeTimeSheet } from '../time-sheets/summary'
 import {
   dayOfWeekIndexes,
   getAllDaysPriorInWeek,
@@ -13,13 +14,15 @@ export const shouldNotifyUser = async (): Promise<boolean> => {
   const dayOfWeek = getDayOfWeek(today)
   const monday = getMondayOfDateOnly(today)
   const timeSheet = await getTimeSheet(monday)
-  const weekStatus = determineWeekStatusFromTimeCards(timeSheet)
-  const daysFilled = determineDaysFilledFromTimeCards(timeSheet)
+  const summary = summarizeTimeSheet(timeSheet)
   const daysPrior = getAllDaysPriorInWeek(dayOfWeek, true, true)
   const extensionOptions = await getExtensionOptions()
 
   for (const dayPrior of daysPrior) {
-    if ((extensionOptions.dailyTimeEntryReminder && !daysFilled[dayPrior]) || weekStatus === 'some-unsaved') {
+    if (
+      (extensionOptions.dailyTimeEntryReminder && !summary.daysFilled[dayPrior]) ||
+      summary.weekStatus === 'some-unsaved'
+    ) {
       return true
     }
   }
@@ -30,6 +33,6 @@ export const shouldNotifyUser = async (): Promise<boolean> => {
   return (
     extensionOptions.endOfWeekTimesheetReminder &&
     dayOfWeekIndex >= thursdayIndex &&
-    weekStatus !== 'all-submitted-or-approved'
+    summary.weekStatus !== 'all-submitted-or-approved'
   )
 }

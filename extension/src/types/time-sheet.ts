@@ -60,3 +60,10 @@ export const isTimeSheet = (input: any): input is TimeSheet => TimeSheet.safePar
 export const isTimeSheetEqual = (first: TimeSheet | null, second: TimeSheet | null) => {
   return JSON.stringify(first) === JSON.stringify(second)
 }
+
+export interface TimeSheetSummary {
+  weekStatus: WeekStatus
+  daysFilled: DaysFilled
+  totalDaysSubmitted: number
+  totalDaysSaved: number
+}

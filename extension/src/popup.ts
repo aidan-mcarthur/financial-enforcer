@@ -1,6 +1,7 @@
-import { getTimeSheet } from './storage/time-sheet'
+import { getTimeSheet } from './time-sheets/storage'
+import { summarizeTimeSheet } from './time-sheets/summary'
 import { addDays, getDayOfWeek, getMondayOfDateOnly, getTodayDateOnly } from './types/dates'
-import { setIntervalAsync } from './utils/utils'
+import { waitFor } from './utils/utils'
 
 const main = async () => {
   const today = getTodayDateOnly()
@@ -12,79 +13,15 @@ const main = async () => {
   const loadingElement = document.getElementById('loading') as HTMLDivElement
   const statusElement = document.getElementById('status') as HTMLDivElement
 
-  setIntervalAsync(async () => {
-    let totalDaysSubmitted = 0
-    let totalDaysSaved = 0
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    await waitFor(1000)
+
     const timeSheet = await getTimeSheet(monday)
+    const summary = summarizeTimeSheet(timeSheet)
 
-    for (const timeCard of timeSheet.timeCards) {
-      if (timeCard.hours.monday > 0) {
-        if (timeCard.status === 'submitted') {
-          totalDaysSubmitted++
-        } else if (timeCard.status === 'saved') {
-          totalDaysSaved++
-        }
-      }
-
-      if (timeCard.hours.monday > 0) {
-        if (timeCard.status === 'submitted') {
-          totalDaysSubmitted++
-        } else if (timeCard.status === 'saved') {
-          totalDaysSaved++
-        }
-      }
-
-      if (timeCard.hours.tuesday > 0) {
-        if (timeCard.status === 'submitted') {
-          totalDaysSubmitted++
-        } else if (timeCard.status === 'saved') {
-          totalDaysSaved++
-        }
-      }
-
-      if (timeCard.hours.wednesday > 0) {
-        if (timeCard.status === 'submitted') {
-          totalDaysSubmitted++
-        } else if (timeCard.status === 'saved') {
-          totalDaysSaved++
-        }
-      }
-
-      if (timeCard.hours.thursday > 0) {
-        if (timeCard.status === 'submitted') {
-          totalDaysSubmitted++
-        } else if (timeCard.status === 'saved') {
-          totalDaysSaved++
-        }
-      }
-
-      if (timeCard.hours.friday > 0) {
-        if (timeCard.status === 'submitted') {
-          totalDaysSubmitted++
-        } else if (timeCard.status === 'saved') {
-          totalDaysSaved++
-        }
-      }
-
-      if (timeCard.hours.saturday > 0) {
-        if (timeCard.status === 'submitted') {
-          totalDaysSubmitted++
-        } else if (timeCard.status === 'saved') {
-          totalDaysSaved++
-        }
-      }
-
-      if (timeCard.hours.sunday > 0) {
-        if (timeCard.status === 'submitted') {
-          totalDaysSubmitted++
-        } else if (timeCard.status === 'saved') {
-          totalDaysSaved++
-        }
-      }
-    }
-
-    daysSubmittedElement.innerHTML = totalDaysSubmitted.toString(10)
-    daysSavedElement.innerHTML = totalDaysSubmitted.toString(10)
+    daysSubmittedElement.innerHTML = summary.totalDaysSubmitted.toString(10)
+    daysSavedElement.innerHTML = summary.totalDaysSubmitted.toString(10)
 
     // todo: the due date should be dynamic
     const now = new Date()
@@ -123,8 +60,7 @@ const main = async () => {
 
     statusElement.style.display = 'block'
     loadingElement.style.display = 'none'
-    return true
-  }, 1000)
+  }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {

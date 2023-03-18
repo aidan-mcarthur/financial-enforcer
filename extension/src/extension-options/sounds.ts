@@ -1,5 +1,5 @@
 import { ExtensionOptions } from '../types/extension-options'
-import { readAsDataUrlAsync } from './utils'
+import { readAsDataUrlAsync } from './uploads'
 
 const getSoundSelector = (): HTMLDivElement => {
   return document.getElementById('sound-selector') as HTMLDivElement
