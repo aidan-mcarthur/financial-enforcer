@@ -19,12 +19,18 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '18'
+      - name: Get Short Commit Hash
+        working-directory: repo
+        run: |
+          FE_SHORT_COMMIT_HASH=$(git rev-parse --short HEAD)
+          echo "Short commit hash is $FE_SHORT_COMMIT_HASH"
+          echo "FE_SHORT_COMMIT_HASH=$FE_SHORT_COMMIT_HASH" >> $GITHUB_ENV
       - name: Install Extension Dependencies
         working-directory: repo/extension
         run: npm install
       - name: Build Extension
         working-directory: repo/extension
-        run: npm run build
+        run: npm run build "$FE_SHORT_COMMIT_HASH"
       - name: Install Website Dependencies
         working-directory: repo/website
         run: npm install
@@ -55,9 +61,6 @@ jobs:
       - name: ZIP Extension
         working-directory: repo/extension
         run: |
-          FE_SHORT_COMMIT_HASH=$(git rev-parse --short HEAD)
-          echo "Short commit hash is $FE_SHORT_COMMIT_HASH"
-
           FE_LONG_COMMIT_HASH=$(git rev-parse HEAD)
           echo "Long commit hash is $FE_LONG_COMMIT_HASH"
           echo "FE_LONG_COMMIT_HASH=$FE_LONG_COMMIT_HASH" >> $GITHUB_ENV
