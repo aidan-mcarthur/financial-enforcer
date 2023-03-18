@@ -2,3 +2,4 @@ node_modules/
 .DS_Store
 extension/dist/
 website/dist/
+.idea/
