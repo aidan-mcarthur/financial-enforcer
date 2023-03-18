@@ -1,9 +1,15 @@
-import { PlayAudioMessageObj, StopAudioMessageObj } from './types/offscreen'
+import { Message, PlayAudioMessage, StopAudioMessage } from './types/offscreen'
 
-// Listen for messages from the extension
-chrome.runtime.onMessage.addListener((msg) => {
-  if ('play' in msg) playAudio(msg.play)
-  if ('stop' in msg) stopAudio(msg.stop)
+chrome.runtime.onMessage.addListener(async (rawMessage: any) => {
+  const message = Message.parse(rawMessage)
+
+  if (message.type === 'play-audio') {
+    playAudioInternal(message)
+  } else if (message.type === 'stop-audio') {
+    stopAudioInternal(message)
+  } else {
+    throw new Error('Unknown message type')
+  }
 })
 
 interface AudioMap {
@@ -12,45 +18,59 @@ interface AudioMap {
 
 const audioMap: AudioMap = {}
 
-// Play sound with access to DOM APIs
-const playAudio = (obj: PlayAudioMessageObj) => {
-  const audio = new Audio(obj.source)
-  audio.volume = obj.volume
+const playAudioInternal = (message: PlayAudioMessage) => {
+  const audio = new Audio(message.source)
+  audio.volume = message.volume
   audio.loop = true
   audio.play()
-  audioMap[obj.id] = audio
+  audioMap[message.id] = audio
 }
 
-const stopAudio = (obj: StopAudioMessageObj) => {
-  if (!(obj.id in audioMap)) {
+const stopAudioInternal = (message: StopAudioMessage) => {
+  if (!(message.id in audioMap)) {
     throw new Error('Audio not found in audio map')
   }
 
-  audioMap[obj.id].pause()
-  delete audioMap[obj.id]
+  audioMap[message.id].pause()
+  delete audioMap[message.id]
 }
 
 let nextId = 1
-export const playSound = async (source: string, volume: number): Promise<number> => {
+
+export const playAudio = async (source: string, volume: number): Promise<number> => {
   const id = nextId++
   await createOffscreen()
-  await chrome.runtime.sendMessage({
-    play: { source, volume, id },
-  })
+
+  const message: PlayAudioMessage = {
+    type: 'play-audio',
+    source,
+    volume,
+    id,
+  }
+
+  await chrome.runtime.sendMessage(message)
   return id
 }
 
-export const stopSound = async (id: number) => {
+export const stopAudio = async (id: number) => {
   await createOffscreen()
-  await chrome.runtime.sendMessage({ stop: { id } })
+
+  const message: StopAudioMessage = {
+    type: 'stop-audio',
+    id,
+  }
+
+  await chrome.runtime.sendMessage(message)
 }
 
-// Create the offscreen document if it doesn't already exist
-async function createOffscreen() {
-  if (await chrome.offscreen.hasDocument()) return
+const createOffscreen = async () => {
+  if (await chrome.offscreen.hasDocument()) {
+    return
+  }
+
   await chrome.offscreen.createDocument({
     url: 'offscreen.html',
-    reasons: ['AUDIO_PLAYBACK' as any],
-    justification: 'testing', // details for using the API
+    reasons: [chrome.offscreen.Reason.AUDIO_PLAYBACK],
+    justification: 'Reminding our user to clock their Financial Force time sheet',
   })
 }

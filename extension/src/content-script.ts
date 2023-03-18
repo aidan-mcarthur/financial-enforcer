@@ -1,43 +1,37 @@
-import { getTimeSheet, isTimeSheetPage } from './time-sheet'
-import { TimeSheetStateChange } from './types/state'
+import { DataSource } from './data-sources/data-source'
+import { lightning } from './data-sources/lightning'
+import { toDateOnlyKey } from './types/dates'
 import { isTimeSheetEqual, TimeSheet } from './types/time-sheet'
-import { waitFor } from './utils'
-
-const sendTimeSheetStateChange = (timeSheet: TimeSheet | null) => {
-  const stateChange: TimeSheetStateChange = {
-    type: 'onTimeSheetStateChange',
-    timeSheet,
-  }
-
-  chrome.runtime.sendMessage(stateChange)
-}
+import { waitFor } from './utils/utils'
 
 const main = async () => {
   let lastTimeSheetUpdate: TimeSheet | null = null
+  const dataSources: DataSource[] = [lightning]
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
     await waitFor(5000)
-    console.log('Checking for time sheet page...')
 
-    if (!isTimeSheetPage()) {
-      console.log('We are not on the timesheet page')
-      sendTimeSheetStateChange(null)
+    for (const dataSource of dataSources) {
+      const timeSheet = await dataSource.queryTimeSheet()
 
-      continue
-    }
-
-    try {
-      const timeSheet = getTimeSheet()
-
-      if (!isTimeSheetEqual(timeSheet, lastTimeSheetUpdate)) {
-        console.log('Sending a timesheet update due to state change.', timeSheet)
-        sendTimeSheetStateChange(timeSheet)
-        lastTimeSheetUpdate = timeSheet
+      if (!timeSheet) {
+        console.log(window.location.href, 'No update to send')
+        continue
       }
-    } catch (e) {
-      console.warn(e)
-      console.log('Timesheet page detected but user is in an inputting state')
+
+      if (lastTimeSheetUpdate && isTimeSheetEqual(timeSheet, lastTimeSheetUpdate)) {
+        console.log(window.location.href, 'No delta in timesheet')
+        continue
+      }
+
+      lastTimeSheetUpdate = timeSheet
+
+      console.log(window.location.href, 'Sending update', timeSheet)
+
+      const data: { [key: string]: TimeSheet } = {}
+      data[`timesheet-${toDateOnlyKey(timeSheet.dates.monday)}`] = timeSheet
+      await chrome.storage.local.set(data)
     }
   }
 }

@@ -9,14 +9,16 @@ if (args.length !== 1) {
   process.exit(1)
 }
 
+const commitHash = args[0]
+
 const manifest = fs.readFileSync('package/manifest.json', 'utf8')
 const manifestObj = JSON.parse(manifest)
 const version = manifestObj.version as string
+const fullVersion = `${version}-${commitHash}`
 
-const commitHash = args[0]
 const sourceDir = 'dist'
 
-const output = fs.createWriteStream(`financial-enforcer-${version}-${commitHash}.zip`)
+const output = fs.createWriteStream(`financial-enforcer-${fullVersion}.zip`)
 const archive = archiver('zip')
 
 archive.on('error', function (err: any) {

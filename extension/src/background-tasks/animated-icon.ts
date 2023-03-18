@@ -1,5 +1,5 @@
+import { GIF } from '../types/gifs'
 import { BackgroundTask, DelayBackgroundTaskState, DoneBackgroundTaskState } from './background-task'
-import { GIF } from './types/gifs'
 
 interface PlayingAnimatedIconState extends DelayBackgroundTaskState {
   frameNumber: number

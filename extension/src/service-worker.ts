@@ -1,12 +1,11 @@
-import { animatedIcon } from './animated-icon'
-import { executeBackgroundTask } from './background-task'
-import { getDatabase, initializeDatabase } from './database'
-import { GIFStream, parseGIF } from './gifs'
-import { shouldNotifyUser } from './notifications'
-import { playSound, stopSound } from './offscreen'
-import { onStateChange } from './state-changes'
+import { animatedIcon } from './background-tasks/animated-icon'
+import { executeBackgroundTask } from './background-tasks/background-task'
+import { GIFStream, parseGIF } from './gifs/gifs'
+import { playAudio, stopAudio } from './offscreen'
+import { shouldNotifyUser } from './service-worker/notifications'
+import { getExtensionOptions } from './storage/extension-options'
 import { GIF } from './types/gifs'
-import { setIntervalAsync } from './utils'
+import { setIntervalAsync } from './utils/utils'
 
 let running = false
 
@@ -16,14 +15,13 @@ const main = async () => {
   }
 
   running = true
-  await initializeDatabase()
 
   let lastGifDataUrl: string | null = null
   let gifIsRunning = () => false
   let gifShouldCancel = false
   let gif: GIF | null = null
 
-  let lastSoundDataUrl: string | null = null
+  let lastSoundDataUrl: string
   let soundPlayingId = 0
 
   setIntervalAsync(async () => {
@@ -31,7 +29,7 @@ const main = async () => {
 
     const cancelSound = async () => {
       if (soundPlayingId) {
-        await stopSound(soundPlayingId)
+        await stopAudio(soundPlayingId)
         soundPlayingId = 0
       }
     }
@@ -45,11 +43,12 @@ const main = async () => {
     }
 
     let newGifLoaded = false
-    const database = await getDatabase()
+    const extensionOptions = await getExtensionOptions()
+    lastSoundDataUrl = extensionOptions.soundDataUrl
 
-    if (database.options.gifDataUrl !== null && database.options.gifDataUrl !== lastGifDataUrl) {
-      lastGifDataUrl = database.options.gifDataUrl
-      const response = await fetch(database.options.gifDataUrl)
+    if (extensionOptions.gifDataUrl !== lastGifDataUrl) {
+      lastGifDataUrl = extensionOptions.gifDataUrl
+      const response = await fetch(extensionOptions.gifDataUrl)
       const arrayBuffer = await response.arrayBuffer()
       const gifStream = new GIFStream(new Uint8Array(arrayBuffer))
       gif = parseGIF(gifStream)
@@ -66,8 +65,8 @@ const main = async () => {
       await cancelGif()
     }
 
-    if (database.options.soundDataUrl !== null && database.options.soundDataUrl !== lastSoundDataUrl) {
-      lastSoundDataUrl = database.options.soundDataUrl
+    if (extensionOptions.soundDataUrl !== lastSoundDataUrl) {
+      lastSoundDataUrl = extensionOptions.soundDataUrl
       cancelSound()
     }
 
@@ -80,8 +79,8 @@ const main = async () => {
         })
       }
 
-      if (!soundPlayingId && database.options.soundDataUrl !== null) {
-        soundPlayingId = await playSound(database.options.soundDataUrl, 1)
+      if (!soundPlayingId) {
+        soundPlayingId = await playAudio(extensionOptions.soundDataUrl, 1)
       }
     }
 
@@ -93,6 +92,5 @@ main()
 
 chrome.runtime.onStartup.addListener(main)
 chrome.runtime.onInstalled.addListener(main)
-chrome.runtime.onMessage.addListener(onStateChange)
 
 export {}
