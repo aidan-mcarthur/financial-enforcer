@@ -1,6 +1,6 @@
-import { createGifSelector, getSelectedGifUrl } from './options/gifs'
-import { createSoundSelector, getSelectedSoundUrl } from './options/sounds'
-import { getExtensionOptions } from './storage/extension-options'
+import { createGifSelector, getSelectedGifUrl } from './extension-options/gifs'
+import { createSoundSelector, getSelectedSoundUrl } from './extension-options/sounds'
+import { getExtensionOptions } from './extension-options/storage'
 
 const main = async () => {
   const form = document.getElementById('options') as HTMLFormElement
