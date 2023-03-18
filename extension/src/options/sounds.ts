@@ -1,13 +1,19 @@
-import { Database } from '../types/database'
+import { ExtensionOptions } from '../types/extension-options'
 import { readAsDataUrlAsync } from './utils'
 
 const getSoundSelector = (): HTMLDivElement => {
   return document.getElementById('sound-selector') as HTMLDivElement
 }
 
-const getSelectedSoundThumbnailElement = (): HTMLImageElement | null => {
+const getSelectedSoundThumbnailElement = (): HTMLImageElement => {
   const soundSelector = getSoundSelector()
-  return soundSelector.querySelector('.selected') as HTMLImageElement | null
+  const thumbnail = soundSelector.querySelector('.selected') as HTMLImageElement
+
+  if (!thumbnail) {
+    throw new Error('No sound selected')
+  }
+
+  return thumbnail
 }
 
 const removeSelectedFromAll = () => {
@@ -128,7 +134,7 @@ interface PresetDetailSingle {
   title: string
 }
 
-const createSoundPresets = (database: Database) => {
+const createSoundPresets = (extensionOptions: ExtensionOptions) => {
   const presetSoundCount = 0
 
   const presetSoundDetails: PresetDetailSingle[] = [
@@ -152,35 +158,36 @@ const createSoundPresets = (database: Database) => {
       presetSoundDetailsSingle.url,
       presetSoundDetailsSingle.thumbnailUrl,
       presetSoundDetailsSingle.title,
-      database.options.soundDataUrl !== null &&
-        !database.options.soundDataUrl?.startsWith('data:') &&
-        database.options.soundDataUrl.endsWith(presetSoundDetailsSingle.url),
+      !extensionOptions.soundDataUrl.startsWith('data:') &&
+        extensionOptions.soundDataUrl.endsWith(presetSoundDetailsSingle.url),
       false,
     )
   }
 }
 
-export const createSoundSelector = (database: Database) => {
-  createSoundPresets(database)
+export const createSoundSelector = (extensionOptions: ExtensionOptions) => {
+  createSoundPresets(extensionOptions)
 
-  if (database.options.soundDataUrl !== null && database.options.soundDataUrl.startsWith('data:')) {
-    createSingleSound(database.options.soundDataUrl, 'sounds/thumbnail.png', 'Your Upload', true, false)
+  if (extensionOptions.soundDataUrl.startsWith('data:')) {
+    createSingleSound(extensionOptions.soundDataUrl, 'sounds/thumbnail.png', 'Your Upload', true, false)
   }
 
   return createSoundUploader()
 }
 
-export const getSelectedSoundUrl = async (database: Database): Promise<string | null> => {
+export const getSelectedSoundUrl = async (extensionOptions: ExtensionOptions): Promise<string> => {
   const soundInput = document.getElementById('sound-input') as HTMLInputElement
 
-  let soundDataUrl: string | null = database.options.soundDataUrl
+  let soundDataUrl = extensionOptions.soundDataUrl
   const selectedSoundThumbnailElement = getSelectedSoundThumbnailElement()
 
   if (selectedSoundThumbnailElement) {
+    const soundSrc = selectedSoundThumbnailElement.getAttribute('data-sound-src')
+
     if (selectedSoundThumbnailElement.src.startsWith('data:')) {
       soundDataUrl = await readAsDataUrlAsync(soundInput)
-    } else {
-      soundDataUrl = selectedSoundThumbnailElement.getAttribute('data-sound-src')
+    } else if (soundSrc) {
+      soundDataUrl = soundSrc
     }
   }
 

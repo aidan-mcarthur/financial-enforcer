@@ -1,4 +1,4 @@
-import { BackgroundTaskState, CancelBackgroundTaskFn } from './background-task'
+import { BackgroundTaskState, CancelBackgroundTaskFn } from '../background-tasks/background-task'
 
 export const waitFor = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 

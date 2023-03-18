@@ -1,13 +1,11 @@
-import { Database } from '../types/database'
+import { ExtensionOptions } from '../types/extension-options'
 import { readAsDataUrlAsync } from './utils'
 
-const getGifSelector = (): HTMLDivElement => {
-  return document.getElementById('gif-selector') as HTMLDivElement
-}
+const getGifSelector = (): HTMLDivElement => document.getElementById('gif-selector') as HTMLDivElement
 
-const getSelectedGifImageElement = (): HTMLImageElement | null => {
+const getSelectedGifImageElement = (): HTMLImageElement => {
   const gifSelector = getGifSelector()
-  return gifSelector.querySelector('.selected') as HTMLImageElement | null
+  return gifSelector.querySelector('.selected') as HTMLImageElement
 }
 
 const removeSelectedFromAll = () => {
@@ -101,7 +99,7 @@ interface PresetDetailSingle {
   title: string
 }
 
-const createGifPresets = (database: Database) => {
+const createGifPresets = (extensionOptions: ExtensionOptions) => {
   const presetGifsCount = 16
 
   const presetGifDetails: PresetDetailSingle[] = [
@@ -122,28 +120,27 @@ const createGifPresets = (database: Database) => {
     createSingleGif(
       presetGifDetailsSingle.url,
       presetGifDetailsSingle.title,
-      database.options.gifDataUrl !== null &&
-        !database.options.gifDataUrl?.startsWith('data:') &&
-        database.options.gifDataUrl.endsWith(presetGifDetailsSingle.url),
+      !extensionOptions.gifDataUrl.startsWith('data:') &&
+        extensionOptions.gifDataUrl.endsWith(presetGifDetailsSingle.url),
       false,
     )
   }
 }
 
-export const createGifSelector = (database: Database) => {
-  createGifPresets(database)
+export const createGifSelector = (extensionOptions: ExtensionOptions) => {
+  createGifPresets(extensionOptions)
 
-  if (database.options.gifDataUrl !== null && database.options.gifDataUrl.startsWith('data:')) {
-    createSingleGif(database.options.gifDataUrl, `Your Upload`, true, false)
+  if (extensionOptions.gifDataUrl.startsWith('data:')) {
+    createSingleGif(extensionOptions.gifDataUrl, `Your Upload`, true, false)
   }
 
   return createGifUploader()
 }
 
-export const getSelectedGifUrl = async (database: Database): Promise<string | null> => {
+export const getSelectedGifUrl = async (extensionOptions: ExtensionOptions): Promise<string> => {
   const gifInput = document.getElementById('gif-input') as HTMLInputElement
 
-  let gifDataUrl: string | null = database.options.gifDataUrl
+  let gifDataUrl = extensionOptions.gifDataUrl
   const selectedGifImageElement = getSelectedGifImageElement()
 
   if (selectedGifImageElement) {

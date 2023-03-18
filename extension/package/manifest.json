@@ -30,9 +30,9 @@
       "all_frames": true
     }
   ],
-  "options_page": "options.html",
+  "options_page": "extension-options.html",
   "options_ui": {
-    "page": "options.html"
+    "page": "extension-options.html"
   },
   "manifest_version": 3
 }

@@ -1,4 +1,4 @@
-import { waitFor } from './utils'
+import { waitFor } from '../utils/utils'
 
 export type CancelBackgroundTaskFn = () => void
 

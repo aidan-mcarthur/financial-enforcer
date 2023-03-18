@@ -13,7 +13,7 @@ import {
   GIFPTExt,
   GIFUnknownAppExt,
   GIFUnknownExt,
-} from './types/gifs'
+} from '../types/gifs'
 
 export const bitsToNumber = (bits: number[]): number => {
   return bits.reduce((bitIndex, bit) => {

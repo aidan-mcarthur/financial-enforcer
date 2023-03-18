@@ -1,27 +1,27 @@
-export interface DateOnly {
-  year: number
-  month: number
-  day: number
+import { z } from 'zod'
+
+export const DateOnly = z.object({
+  year: z.number(),
+  month: z.number(),
+  day: z.number(),
+})
+export type DateOnly = z.infer<typeof DateOnly>
+
+export const DayOfWeek = z.enum(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])
+export type DayOfWeek = z.infer<typeof DayOfWeek>
+
+export const toDateOnlyKey = (dateOnly: DateOnly): string => {
+  const month = dateOnly.month.toString().padStart(2, '0')
+  const day = dateOnly.day.toString().padStart(2, '0')
+
+  return `${month}/${day}/${dateOnly.year}`
 }
 
-export type DayOfWeek = 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday'
-
-export const serializeDateOnly = (date: DateOnly): string => {
-  const month = date.month.toString().padStart(2, '0')
-  const day = date.day.toString().padStart(2, '0')
-
-  return `${month}/${day}/${date.year}`
-}
-
-export const isDateOnlyEqual = (first: DateOnly, second: DateOnly) => {
-  return first.month === second.month && first.day === second.day && first.year === second.year
-}
-
-export const deserializeDateOnly = (date: string): DateOnly => {
-  const parts = date.split('/')
+export const fromDateOnlyKey = (dateOnlyKey: string): DateOnly => {
+  const parts = dateOnlyKey.split('/')
 
   if (parts.length !== 3) {
-    throw new Error(`Invalid date: ${date}`)
+    throw new Error(`Invalid date-only key: ${dateOnlyKey}`)
   }
 
   const [month, day, year] = parts
@@ -33,14 +33,24 @@ export const deserializeDateOnly = (date: string): DateOnly => {
   }
 }
 
+export const isDateOnlyEqual = (first: DateOnly, second: DateOnly) => {
+  return first.month === second.month && first.day === second.day && first.year === second.year
+}
+
+const convertDateToDateOnly = (date: Date): DateOnly => ({
+  year: date.getFullYear(),
+  month: date.getMonth() + 1,
+  day: date.getDate(),
+})
+
+export const addDays = (date: DateOnly, days: number): DateOnly => {
+  const newDate = new Date(date.year, date.month - 1, date.day + days)
+  return convertDateToDateOnly(newDate)
+}
+
 export const minusDays = (date: DateOnly, days: number): DateOnly => {
   const newDate = new Date(date.year, date.month - 1, date.day - days)
-
-  return {
-    year: newDate.getFullYear(),
-    month: newDate.getMonth() + 1,
-    day: newDate.getDate(),
-  }
+  return convertDateToDateOnly(newDate)
 }
 
 export const getTodayDateOnly = (): DateOnly => {
