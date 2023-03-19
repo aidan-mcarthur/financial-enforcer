@@ -22,7 +22,7 @@ jobs:
           path: build/
           if_no_artifact_found: fail
       - name: Report Coverage
-        uses: romeovs/lcov-reporter-action@v0.2.16
+        uses: romeovs/lcov-reporter-action@v0.3.1
         with:
           github-token: ${{ secrets.SERVICE_PAT }}
           lcov-file: ./build/extension/coverage/lcov.info
