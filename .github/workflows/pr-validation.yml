@@ -34,6 +34,14 @@ jobs:
       - name: Lint Extension Source
         working-directory: repo/extension
         run: npm run lint
+      - name: Test Extension
+        working-directory: repo/extension
+        run: npm run test
+      - name: Report Coverage
+        working-directory: repo/extension
+        uses: romeovs/lcov-reporter-action@v0.2.16
+        with:
+          lcov-file: ./coverage/lcov.info
       - name: Build Extension
         working-directory: repo/extension
         run: npm run build
