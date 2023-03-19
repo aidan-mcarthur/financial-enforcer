@@ -20,11 +20,12 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build-output
+          path: build/
       - name: Report Coverage
         uses: romeovs/lcov-reporter-action@v0.2.16
         with:
           github-token: ${{ secrets.SERVICE_PAT }}
-          lcov-file: ./repo/extension/coverage/lcov.info
+          lcov-file: ./build/financial-enforcer/extension/coverage/lcov.info
   security:
     name: Security
     needs: build-and-test

@@ -47,6 +47,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: build-output
+          retention-days: 5
           path: |
             repo/documentation/dist/
             repo/extension/dist/

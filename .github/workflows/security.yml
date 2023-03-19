@@ -12,9 +12,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build-output
+          path: build/
       - name: Snyk Scan
         uses: snyk/actions/node@master
         with:
-          args: 'repo/extension repo/website repo/documentation'
+          args: 'build/financial-enforcer/extension build/financial-enforcer/website build/financial-enforcer/documentation'
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
