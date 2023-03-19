@@ -26,3 +26,7 @@ The extension uses [Jest](https://jestjs.io/) for its test suite.
 $ cd financial-enforcer/extension
 $ npm run test
 ```
+
+# License
+
+Financial Enforcer is license under the [MIT license](./LICENSE)
