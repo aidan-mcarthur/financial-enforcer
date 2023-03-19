@@ -82,13 +82,13 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build-output
-          path: build/
+          path: repo/extension/dist/
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
       - name: Create Version Text File
-        run: echo "$GITHUB_SHA" > build/extension/dist/version.txt
+        run: echo "$GITHUB_SHA" > repo/extension/dist/version.txt
       - name: ZIP Extension
         working-directory: repo/extension
         run: |
@@ -97,7 +97,6 @@ jobs:
           echo "FE_LONG_COMMIT_HASH=$FE_LONG_COMMIT_HASH" >> $GITHUB_ENV
 
           npm ci
-          cp -R build/extension dist/
           npm run package ${{ needs.commit-hash.outputs.commit-hash }}
 
           FE_ZIP_NAME=$(ls financial-enforcer-*.zip)
