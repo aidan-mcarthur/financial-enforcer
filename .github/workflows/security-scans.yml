@@ -12,11 +12,17 @@ jobs:
     name: Snyk Scan
     runs-on: ubuntu-latest
     steps:
+      - name: Debug Event
+        run: |
+          echo "Repo Name from Event: ${{ github.event.repository.name }}"
+          echo "Owner Name from Event: ${{ github.event.repository.owner.name }}"
+          echo "Full Name from Event: ${{ github.event.repository.full_name }}"
+          echo "Repo SHA from Event: ${{ github.event.pull_request.head.sha }}"
       - uses: actions/checkout@v3
         with:
           path: 'repo'
           ref: ${{ github.event.pull_request.head.sha }}
-          repository: ${{ github.event.pull_request.repo.name }}
+          repository: ${{ github.event.repository.full_name }}
       - name: Snyk Scan
         uses: snyk/actions/node@master
         with:
