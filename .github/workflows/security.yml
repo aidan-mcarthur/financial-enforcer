@@ -8,14 +8,13 @@ jobs:
     name: Snyk
     runs-on: ubuntu-latest
     steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v3
+      - uses: actions/checkout@v3
         with:
-          name: build-output
-          path: build/
+          path: "repo"
+          fetch-depth: 0
       - name: Snyk Scan
         uses: snyk/actions/node@master
         with:
-          args: 'build/financial-enforcer/extension build/financial-enforcer/website build/financial-enforcer/documentation'
+          args: 'repo/extension repo/website repo/documentation'
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
