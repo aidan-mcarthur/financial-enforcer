@@ -21,7 +21,10 @@ jobs:
           node-version: "18"
       - name: Install Website Dependencies
         working-directory: repo/website
-        run: npm install
+        run: npm ci
+      - name: Snyk Scan Website
+        working-directory: repo/website
+        run: npm run snyk
       - name: Lint Website Source
         working-directory: repo/website
         run: npm run lint
@@ -30,13 +33,19 @@ jobs:
         run: npm run build
       - name: Install Documentation Dependencies
         working-directory: repo/documentation
-        run: npm install
+        run: npm ci
+      - name: Snyk Scan Documentation
+        working-directory: repo/documentation
+        run: npm run snyk
       - name: Build Documentation
         working-directory: repo/documentation
         run: npm run build
       - name: Install Extension Dependencies
         working-directory: repo/extension
-        run: npm install
+        run: npm ci
+      - name: Snyk Scan Extension
+        working-directory: repo/extension
+        run: npm run snyk
       - name: Lint Extension Source
         working-directory: repo/extension
         run: npm run lint
