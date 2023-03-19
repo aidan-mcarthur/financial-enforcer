@@ -157,10 +157,11 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: dist
+          path: published-extension/
       - name: Copy Published Extension Artifact to Docs
         run: |
-          FE_ZIP_PATH=$(ls ${{steps.download.outputs.download-path}}/financial-enforcer-*.zip)
-          cp "$FE_ZIP_PATH" gh-pages/docs/financial-enforcer.zip
+          FE_ZIP_PATH=$(ls published-extension/financial-enforcer-*.zip)
+          cp $FE_ZIP_PATH gh-pages/docs/financial-enforcer.zip
       - name: Stage Pages
         working-directory: gh-pages/docs
         run: git add -A
