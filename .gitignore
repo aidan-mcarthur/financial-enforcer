@@ -3,3 +3,4 @@ node_modules/
 extension/dist/
 website/dist/
 .idea/
+extension/coverage/
