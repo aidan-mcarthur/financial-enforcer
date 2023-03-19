@@ -53,6 +53,11 @@ jobs:
       - name: Remove Existing Docs Directory
         working-directory: gh-pages
         run: rm -rf docs
+      - name: Remove Existing Wiki Contents
+        working-directory: wiki
+        run: |
+          git rm -rf .
+          git clean -fxd
       - name: Create Docs Directory
         working-directory: gh-pages
         run: mkdir -p docs
@@ -61,9 +66,12 @@ jobs:
         run: echo 'www.financialenforcer.com' > docs/CNAME
       - name: Copy Distribution Folder to Docs
         run: cp -R repo/website/dist/* gh-pages/docs/
+      - name: Copy Documentation Folder to Wiki
+        run: cp -R repo/documentation/* wiki/
       - name: Create Version Text File
         run: |
           echo "$GITHUB_SHA" > gh-pages/docs/version.txt
+          echo "$GITHUB_SHA" > wiki/version.txt
           echo "$GITHUB_SHA" > repo/extension/dist/version.txt
       - name: ZIP Extension
         working-directory: repo/extension
@@ -86,40 +94,33 @@ jobs:
       - name: Stage Pages
         working-directory: gh-pages/docs
         run: git add -A
+      - name: Stage Wiki
+        working-directory: wiki
+        run: git add -A
       - name: Commit Pages
         working-directory: gh-pages
         run: |
           git config --global user.email "financialenforcerapp@gmail.com"
           git config --global user.name "Financial Enforcer Service Account"
           git commit -m "Pages for $GITHUB_SHA"
-      - name: Push Pages
-        working-directory: gh-pages
-        run: git push origin gh-pages
-      - name: 'Upload ZIP as Artifact'
-        uses: actions/upload-artifact@v3
-        with:
-          name: dist
-          path: 'repo/extension/${{ env.FE_ZIP_NAME }}'
-          retention-days: 90
-      - name: Remove Existing Wiki Contents
-        working-directory: wiki
-        run: |
-          git rm -rf .
-          git clean -fxd
-      - name: Copy Documentation Folder to Wiki
-        run: cp -R repo/documentation/* wiki/
-      - name: Stage Wiki
-        working-directory: wiki
-        run: git add -A
       - name: Commit Wiki
         working-directory: wiki
         run: |
           git config --global user.email "financialenforcerapp@gmail.com"
           git config --global user.name "Financial Enforcer Service Account"
           git commit -m "Wiki for $GITHUB_SHA"
+      - name: Push Pages
+        working-directory: gh-pages
+        run: git push origin gh-pages
       - name: Push Wiki
         working-directory: wiki
         run: git push origin master
+      - name: 'Upload ZIP as Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: 'repo/extension/${{ env.FE_ZIP_NAME }}'
+          retention-days: 90
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
