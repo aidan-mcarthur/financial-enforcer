@@ -1,0 +1,20 @@
+name: Security
+
+on:
+  workflow_call:
+
+jobs:
+  security:
+    name: Snyk
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          path: "repo"
+          fetch-depth: 0
+      - name: Snyk Scan
+        uses: snyk/actions/node@master
+        with:
+          args: 'repo/extension repo/website repo/documentation'
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
