@@ -23,8 +23,10 @@ jobs:
         working-directory: repo/website
         run: npm ci
       - name: Snyk Scan Website
+        uses: snyk/actions/node@master
         working-directory: repo/website
-        run: npm run snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       - name: Lint Website Source
         working-directory: repo/website
         run: npm run lint
@@ -35,8 +37,10 @@ jobs:
         working-directory: repo/documentation
         run: npm ci
       - name: Snyk Scan Documentation
+        uses: snyk/actions/node@master
         working-directory: repo/documentation
-        run: npm run snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       - name: Build Documentation
         working-directory: repo/documentation
         run: npm run build
@@ -44,8 +48,10 @@ jobs:
         working-directory: repo/extension
         run: npm ci
       - name: Snyk Scan Extension
+        uses: snyk/actions/node@master
         working-directory: repo/extension
-        run: npm run snyk
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
       - name: Lint Extension Source
         working-directory: repo/extension
         run: npm run lint
