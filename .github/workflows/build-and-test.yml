@@ -70,7 +70,7 @@ jobs:
 
           FE_TAG=$(echo "$FE_ZIP_NAME" | sed 's/.*-\([0-9\.]*-[^\.]*\)\..*/\1/')
           echo "Tag is $FE_TAG"
-          echo "FE_TAG=$FE_TAG" >> $GITHUB_ENV
+          echo "$FE_TAG" > repo/extension/tag.txt
       - name: Create Build Output Artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -78,6 +78,7 @@ jobs:
           retention-days: 5
           path: |
             repo/documentation/dist/
+            repo/extension/tag.txt
             repo/extension/dist/
             repo/extension/coverage/
             repo/website/dist/

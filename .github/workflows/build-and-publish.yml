@@ -69,6 +69,11 @@ jobs:
           name: published-extension
           path: 'build/extension/${{ env.FE_ZIP_NAME }}'
           retention-days: 90
+      - name: Obtain Tag
+        working-directory: repo/extension
+        run: |
+          FE_TAG=$(cat tag.txt)
+          echo "FE_TAG=$FE_TAG" >> $GITHUB_ENV
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -82,7 +87,7 @@ jobs:
           GITHUB_REPOSITORY: FinancialEnforcer/financial-enforcer
   publish-website:
     name: Publish Website
-    needs: [build-and-test, publish-extension]
+    needs: [build-and-test]
     runs-on: ubuntu-latest
     steps:
       - name: Download build artifact
@@ -107,15 +112,9 @@ jobs:
         run: echo 'www.financialenforcer.com' > docs/CNAME
       - name: Copy Distribution Folder to Docs
         run: cp -R build/website/dist/* gh-pages/docs/
-      - name: Download Published Extension Artifact
-        id: download-extension
-        uses: actions/download-artifact@v3
-        with:
-          name: published-extension
-          path: published-extension/
       - name: Copy Published Extension Artifact to Docs
         run: |
-          FE_ZIP_PATH=$(ls published-extension/financial-enforcer-*.zip)
+          FE_ZIP_PATH=$(ls build/extension/financial-enforcer-*.zip)
           cp $FE_ZIP_PATH gh-pages/docs/financial-enforcer.zip
       - name: Stage Pages
         working-directory: gh-pages/docs
