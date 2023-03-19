@@ -43,6 +43,13 @@ jobs:
           ref: 'gh-pages'
           token: '${{ secrets.SERVICE_PAT }}'
           path: 'gh-pages'
+      - name: Checkout Wiki
+        uses: actions/checkout@v2
+        with:
+          repository: ${{github.repository}}.wiki
+          ref: 'master'
+          token: '${{ secrets.SERVICE_PAT }}'
+          path: 'wiki'
       - name: Remove Existing Docs Directory
         working-directory: gh-pages
         run: rm -rf docs
@@ -94,6 +101,25 @@ jobs:
           name: dist
           path: 'repo/extension/${{ env.FE_ZIP_NAME }}'
           retention-days: 90
+      - name: Remove Existing Wiki Contents
+        working-directory: wiki
+        run: |
+          git rm -rf .
+          git clean -fxd
+      - name: Copy Documentation Folder to Wiki
+        run: cp -R repo/documentation/* wiki/
+      - name: Stage Wiki
+        working-directory: wiki
+        run: git add -A
+      - name: Commit Wiki
+        working-directory: wiki
+        run: |
+          git config --global user.email "financialenforcerapp@gmail.com"
+          git config --global user.name "Financial Enforcer Service Account"
+          git commit -m "Wiki for $GITHUB_SHA"
+      - name: Push Wiki
+        working-directory: wiki
+        run: git push origin master
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -105,3 +131,4 @@ jobs:
           files: 'repo/extension/${{ env.FE_ZIP_NAME }}'
         env:
           GITHUB_REPOSITORY: FinancialEnforcer/financial-enforcer
+
