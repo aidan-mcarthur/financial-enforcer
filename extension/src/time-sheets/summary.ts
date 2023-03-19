@@ -1,4 +1,4 @@
-import { DayOfWeek } from '../types/dates'
+import { addDays, DayOfWeek } from '../types/dates'
 import { DaysFilled, TimeSheet, TimeSheetSummary, WeekStatus } from '../types/time-sheet'
 
 const determineWeekStatusFromTimeCards = (timeSheet: TimeSheet): WeekStatus => {
@@ -71,11 +71,37 @@ const determineTotalDaysSavedFromTimeCards = (timeSheet: TimeSheet): number => {
   return totalDaysSaved
 }
 
+const determineTimeRemaining = (timeSheet: TimeSheet): string => {
+  const now = new Date()
+  const dueDateOnly = addDays(timeSheet.dates.monday, 3)
+  const dueDate = new Date(
+    dueDateOnly.year,
+    dueDateOnly.month - 1,
+    dueDateOnly.day,
+    17, // 5pm
+    0,
+    0,
+  )
+  const dueDateMillisecondsRemaining = dueDate.getTime() - now.getTime()
+
+  if (dueDateMillisecondsRemaining < 0) {
+    return '00:00:00'
+  } else {
+    const hours = Math.floor(dueDateMillisecondsRemaining / 3600000)
+    const minutes = Math.floor((dueDateMillisecondsRemaining % 3600000) / 60000)
+    const seconds = Math.floor((dueDateMillisecondsRemaining % 60000) / 1000)
+    return `${hours.toString(10).padStart(2, '0')}:${minutes.toString(10).padStart(2, '0')}:${seconds
+      .toString(10)
+      .padStart(2, '0')}`
+  }
+}
+
 export const summarizeTimeSheet = (timeSheet: TimeSheet): TimeSheetSummary => {
   return {
     weekStatus: determineWeekStatusFromTimeCards(timeSheet),
     daysFilled: determineDaysFilledFromTimeCards(timeSheet),
     totalDaysSubmitted: determineTotalDaysSubmittedFromTimeCards(timeSheet),
     totalDaysSaved: determineTotalDaysSavedFromTimeCards(timeSheet),
+    timeRemaining: determineTimeRemaining(timeSheet),
   }
 }

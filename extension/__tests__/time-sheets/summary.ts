@@ -1,4 +1,4 @@
-import { describe, expect, test } from '@jest/globals'
+import { beforeAll, describe, expect, jest, test } from '@jest/globals'
 import { summarizeTimeSheet } from '../../src/time-sheets/summary'
 import { TimeSheet, TimeSheetDates, TimeSheetSummary } from '../../src/types/time-sheet'
 
@@ -6,41 +6,45 @@ const dates: TimeSheetDates = {
   monday: {
     year: 2023,
     month: 3,
-    day: 1,
+    day: 13,
   },
   tuesday: {
     year: 2023,
     month: 3,
-    day: 2,
+    day: 14,
   },
   wednesday: {
     year: 2023,
     month: 3,
-    day: 3,
+    day: 15,
   },
   thursday: {
     year: 2023,
     month: 3,
-    day: 4,
+    day: 16,
   },
   friday: {
     year: 2023,
     month: 3,
-    day: 5,
+    day: 17,
   },
   saturday: {
     year: 2023,
     month: 3,
-    day: 6,
+    day: 18,
   },
   sunday: {
     year: 2023,
     month: 3,
-    day: 7,
+    day: 19,
   },
 }
 
 describe('summarizeTimeSheet', () => {
+  beforeAll(() => {
+    jest.useFakeTimers().setSystemTime(new Date(2023, 2, 19, 0, 0, 0))
+  })
+
   test('when there are no time cards', () => {
     const emptyTimeSheet: TimeSheet = {
       dates,
@@ -59,6 +63,7 @@ describe('summarizeTimeSheet', () => {
       },
       totalDaysSaved: 0,
       totalDaysSubmitted: 0,
+      timeRemaining: '00:00:00',
       weekStatus: 'no-time-cards',
     }
 
@@ -96,6 +101,7 @@ describe('summarizeTimeSheet', () => {
       },
       totalDaysSaved: 5,
       totalDaysSubmitted: 0,
+      timeRemaining: '00:00:00',
       weekStatus: 'some-unsubmitted',
     }
 
@@ -145,6 +151,7 @@ describe('summarizeTimeSheet', () => {
       },
       totalDaysSaved: 0,
       totalDaysSubmitted: 5,
+      timeRemaining: '00:00:00',
       weekStatus: 'all-submitted-or-approved',
     }
 
@@ -194,6 +201,7 @@ describe('summarizeTimeSheet', () => {
       },
       totalDaysSaved: 3,
       totalDaysSubmitted: 2,
+      timeRemaining: '00:00:00',
       weekStatus: 'some-unsubmitted',
     }
 
@@ -243,6 +251,7 @@ describe('summarizeTimeSheet', () => {
       },
       totalDaysSaved: 3,
       totalDaysSubmitted: 2,
+      timeRemaining: '00:00:00',
       weekStatus: 'some-unsubmitted',
     }
 
@@ -280,6 +289,127 @@ describe('summarizeTimeSheet', () => {
       },
       totalDaysSaved: 0,
       totalDaysSubmitted: 0,
+      timeRemaining: '00:00:00',
+      weekStatus: 'some-unsaved',
+    }
+
+    expect(summarizeTimeSheet(timeSheet)).toEqual(expected)
+  })
+
+  test('when you have 25 hours left', () => {
+    jest.useFakeTimers().setSystemTime(new Date(2023, 2, 15, 16, 0, 0))
+
+    const timeSheet: TimeSheet = {
+      dates,
+      timeCards: [
+        {
+          status: 'unsaved',
+          hours: {
+            monday: 8,
+            tuesday: 8,
+            wednesday: 8,
+            thursday: 0,
+            friday: 0,
+            saturday: 0,
+            sunday: 0,
+          },
+        },
+      ],
+    }
+
+    const expected: TimeSheetSummary = {
+      daysFilled: {
+        monday: true,
+        tuesday: true,
+        wednesday: true,
+        thursday: false,
+        friday: false,
+        saturday: false,
+        sunday: false,
+      },
+      totalDaysSaved: 0,
+      totalDaysSubmitted: 0,
+      timeRemaining: '25:00:00',
+      weekStatus: 'some-unsaved',
+    }
+
+    expect(summarizeTimeSheet(timeSheet)).toEqual(expected)
+  })
+
+  test('when you have 1 second left', () => {
+    jest.useFakeTimers().setSystemTime(new Date(2023, 2, 16, 16, 59, 59))
+
+    const timeSheet: TimeSheet = {
+      dates,
+      timeCards: [
+        {
+          status: 'unsaved',
+          hours: {
+            monday: 8,
+            tuesday: 8,
+            wednesday: 8,
+            thursday: 0,
+            friday: 0,
+            saturday: 0,
+            sunday: 0,
+          },
+        },
+      ],
+    }
+
+    const expected: TimeSheetSummary = {
+      daysFilled: {
+        monday: true,
+        tuesday: true,
+        wednesday: true,
+        thursday: false,
+        friday: false,
+        saturday: false,
+        sunday: false,
+      },
+      totalDaysSaved: 0,
+      totalDaysSubmitted: 0,
+      timeRemaining: '00:00:01',
+      weekStatus: 'some-unsaved',
+    }
+
+    expect(summarizeTimeSheet(timeSheet)).toEqual(expected)
+  })
+
+  test('when you have no time left', () => {
+    jest.useFakeTimers().setSystemTime(new Date(2023, 2, 16, 17, 0, 0))
+
+    const timeSheet: TimeSheet = {
+      dates,
+      timeCards: [
+        {
+          status: 'unsaved',
+          hours: {
+            monday: 8,
+            tuesday: 8,
+            wednesday: 8,
+            thursday: 0,
+            friday: 0,
+            saturday: 0,
+            sunday: 0,
+          },
+        },
+      ],
+    }
+
+    const expected: TimeSheetSummary = {
+      daysFilled: {
+        monday: true,
+        tuesday: true,
+        wednesday: true,
+        thursday: false,
+        friday: false,
+        saturday: false,
+        sunday: false,
+      },
+      totalDaysSaved: 0,
+      totalDaysSubmitted: 0,
+      timeRemaining: '00:00:00',
       weekStatus: 'some-unsaved',
     }
 
