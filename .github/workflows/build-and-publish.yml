@@ -11,12 +11,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           path: 'repo'
           fetch-depth: 0
       - name: Install Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '18'
       - name: Get Short Commit Hash
@@ -50,13 +50,13 @@ jobs:
         working-directory: repo/website
         run: npm run build
       - name: Checkout GH Pages
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: 'gh-pages'
           token: '${{ secrets.SERVICE_PAT }}'
           path: 'gh-pages'
       - name: Checkout Wiki
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: ${{github.repository}}.wiki
           ref: 'master'
