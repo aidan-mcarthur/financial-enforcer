@@ -97,6 +97,7 @@ jobs:
           echo "FE_LONG_COMMIT_HASH=$FE_LONG_COMMIT_HASH" >> $GITHUB_ENV
 
           npm ci
+          cp -R build/extension dist/
           npm run package ${{ needs.commit-hash.outputs.commit-hash }}
 
           FE_ZIP_NAME=$(ls financial-enforcer-*.zip)
