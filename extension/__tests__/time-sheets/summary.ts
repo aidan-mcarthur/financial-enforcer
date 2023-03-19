@@ -415,4 +415,42 @@ describe('summarizeTimeSheet', () => {
 
     expect(summarizeTimeSheet(timeSheet)).toEqual(expected)
   })
+
+  test('when your time card is approved', () => {
+    const timeSheet: TimeSheet = {
+      dates,
+      timeCards: [
+        {
+          status: 'approved',
+          hours: {
+            monday: 8,
+            tuesday: 8,
+            wednesday: 8,
+            thursday: 8,
+            friday: 8,
+            saturday: 0,
+            sunday: 0,
+          },
+        },
+      ],
+    }
+
+    const expected: TimeSheetSummary = {
+      daysFilled: {
+        monday: true,
+        tuesday: true,
+        wednesday: true,
+        thursday: true,
+        friday: true,
+        saturday: false,
+        sunday: false,
+      },
+      totalDaysSaved: 0,
+      totalDaysSubmitted: 5,
+      timeRemaining: '00:00:00',
+      weekStatus: 'all-submitted-or-approved',
+    }
+
+    expect(summarizeTimeSheet(timeSheet)).toEqual(expected)
+  })
 })
