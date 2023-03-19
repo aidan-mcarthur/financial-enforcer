@@ -82,20 +82,22 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: build-output
-          path: repo/extension/dist/
+          path: build/
+      - name: Copy Built Extension Into Repo Dist
+        run: cp -R build/extension/dist repo/extension/
+      - name: Create Version Text File
+        run: echo "$GITHUB_SHA" > repo/extension/dist/version.txt
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-      - name: Create Version Text File
-        run: echo "$GITHUB_SHA" > repo/extension/dist/version.txt
       - name: ZIP Extension
         working-directory: repo/extension
         run: |
           FE_LONG_COMMIT_HASH=$(git rev-parse HEAD)
           echo "Long commit hash is $FE_LONG_COMMIT_HASH"
           echo "FE_LONG_COMMIT_HASH=$FE_LONG_COMMIT_HASH" >> $GITHUB_ENV
-
+          
           npm ci
           npm run package ${{ needs.commit-hash.outputs.commit-hash }}
 
