@@ -1,3 +1,4 @@
+import { isEqual } from 'lodash'
 import { z } from 'zod'
 import { DateOnly, DayOfWeek } from './dates'
 
@@ -68,7 +69,7 @@ export interface DaysFilled {
 export const isTimeSheet = (input: any): input is TimeSheet => TimeSheet.safeParse(input).success
 
 export const isTimeSheetEqual = (first: TimeSheet | null, second: TimeSheet | null) => {
-  return JSON.stringify(first) === JSON.stringify(second)
+  return isEqual(first, second)
 }
 
 export interface TimeSheetSummary {
