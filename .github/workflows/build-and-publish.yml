@@ -9,7 +9,10 @@ on:
 
 jobs:
   commit-hash:
+    name: Get the commit hash
     runs-on: ubuntu-latest
+    outputs:
+      commit-hash: ${{ steps.set-commit-hash.outputs.FE_SHORT_COMMIT_HASH }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -27,7 +30,7 @@ jobs:
     uses: ./.github/workflows/build-and-test.yml
     needs: commit-hash
     with:
-      commit-hash: ${{ steps.set-commit-hash.outputs.FE_SHORT_COMMIT_HASH }}
+      commit-hash: ${{ needs.commit-hash.outputs.commit-hash }}
   publish-documentation:
     needs: build-and-test
     runs-on: ubuntu-latest
@@ -109,7 +112,7 @@ jobs:
           echo "Long commit hash is $FE_LONG_COMMIT_HASH"
           echo "FE_LONG_COMMIT_HASH=$FE_LONG_COMMIT_HASH" >> $GITHUB_ENV
 
-          npm run package ${{ steps.set-commit-hash.outputs.FE_SHORT_COMMIT_HASH }}
+          npm run package ${{ needs.commit-hash.outputs.commit-hash }}
 
           FE_ZIP_NAME=$(ls financial-enforcer-*.zip)
           echo "ZIP name is $FE_ZIP_NAME"
