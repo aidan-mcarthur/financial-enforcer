@@ -54,6 +54,9 @@ jobs:
           git clean -fxd
       - name: Copy Documentation Folder to Wiki
         run: cp -R build/documentation/dist/* wiki/
+      - name: Create Version File
+        run: |
+          echo "This wiki was built from $GITHUB_SHA" > wiki/Version.md
       - name: Stage Wiki
         working-directory: wiki
         run: git add -A
@@ -103,7 +106,6 @@ jobs:
       - name: Create Version Text File
         run: |
           echo "$GITHUB_SHA" > gh-pages/docs/version.txt
-          echo "This wiki was built from $GITHUB_SHA" > wiki/Version.md
           echo "$GITHUB_SHA" > build/extension/dist/version.txt
       - name: ZIP Extension
         working-directory: repo/extension
