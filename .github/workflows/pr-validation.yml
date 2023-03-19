@@ -21,6 +21,9 @@ jobs:
         with:
           name: build-output
           path: build/
+      - name: debug
+        run: ls -R
+        working-directory: build/
       - name: Report Coverage
         uses: romeovs/lcov-reporter-action@v0.2.16
         with:
