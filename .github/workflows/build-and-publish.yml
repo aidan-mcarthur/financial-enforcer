@@ -74,6 +74,10 @@ jobs:
     needs: [commit-hash, build-and-test]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+        with:
+          path: 'repo'
+          fetch-depth: 0
       - name: Download build artifact
         uses: actions/download-artifact@v3
         with:
