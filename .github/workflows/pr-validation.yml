@@ -24,5 +24,4 @@ jobs:
           lcov-file: ./repo/extension/coverage/lcov.info
   security:
     uses: ./.github/workflows/security.yml
-    secrets:
-      SERVICE_PAT: ${{ secrets.SERVICE_PAT }}
+    secrets: inherit
