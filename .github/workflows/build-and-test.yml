@@ -46,7 +46,7 @@ jobs:
         run: npm run test
       - name: Build Extension
         working-directory: repo/extension
-        run: npm run build ${{ inputs.build-hash }}
+        run: npm run build ${{ inputs.commit-hash }}
       - name: Create build output artifacts
         uses: actions/upload-artifact@v3
         with:
