@@ -64,3 +64,4 @@ jobs:
             repo/extension/dist/
             repo/extension/coverage/
             repo/website/dist/
+            repo/extension/financial-enforcer-*.zip

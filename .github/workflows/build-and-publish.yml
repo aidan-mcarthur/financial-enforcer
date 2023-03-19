@@ -64,7 +64,7 @@ jobs:
           name: build-output
           path: build/
       - name: Obtain Tag
-        working-directory: repo/extension
+        working-directory: build/extension/dist
         run: |
           FE_TAG=$(cat tag.txt)
           echo "FE_TAG=$FE_TAG" >> $GITHUB_ENV
@@ -112,6 +112,11 @@ jobs:
         run: echo 'www.financialenforcer.com' > docs/CNAME
       - name: Copy Distribution Folder to Docs
         run: cp -R build/website/dist/* gh-pages/docs/
+      - name: Obtain Tag
+        working-directory: build/extension/dist
+        run: |
+          FE_TAG=$(cat tag.txt)
+          echo "FE_TAG=$FE_TAG" >> $GITHUB_ENV
       - name: Copy Published Extension Artifact to Docs
         run: |
           cp "build/extension/financial-enforcer-${{ env.FE_TAG }}.zip" gh-pages/docs/financial-enforcer.zip
