@@ -4,7 +4,7 @@ chrome.runtime.onMessage.addListener(async (rawMessage: any) => {
   const message = Message.parse(rawMessage)
 
   if (message.type === 'play-audio') {
-    playAudioInternal(message)
+    await playAudioInternal(message)
   } else if (message.type === 'stop-audio') {
     stopAudioInternal(message)
   } else {
@@ -18,11 +18,11 @@ interface AudioMap {
 
 const audioMap: AudioMap = {}
 
-const playAudioInternal = (message: PlayAudioMessage) => {
+const playAudioInternal = async (message: PlayAudioMessage) => {
   const audio = new Audio(message.source)
   audio.volume = message.volume
   audio.loop = true
-  audio.play()
+  await audio.play()
   audioMap[message.id] = audio
 }
 

@@ -40,11 +40,6 @@ export const fromDateOnlyKey = (dateOnlyKey: string): DateOnly => {
     day: parseInt(day, 10),
   }
 }
-
-export const isDateOnlyEqual = (first: DateOnly, second: DateOnly) => {
-  return first.month === second.month && first.day === second.day && first.year === second.year
-}
-
 const convertDateToDateOnly = (date: Date): DateOnly => ({
   year: date.getFullYear(),
   month: date.getMonth() + 1,
@@ -120,10 +115,6 @@ export const getAllDaysPriorInWeek = (
 
   const daysOfWeek = Object.keys(dayOfWeekIndexes) as DayOfWeek[]
   return daysOfWeek.slice(startIndex, endIndex).filter((singleDayOfWeek) => {
-    if (onlyBusinessDays && !isBusinessDayOfWeek(singleDayOfWeek)) {
-      return false
-    }
-
-    return true
+    return !(onlyBusinessDays && !isBusinessDayOfWeek(singleDayOfWeek))
   })
 }

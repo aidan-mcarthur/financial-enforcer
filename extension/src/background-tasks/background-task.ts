@@ -1,7 +1,5 @@
 import { waitFor } from '../utils/utils'
 
-export type CancelBackgroundTaskFn = () => void
-
 export interface DelayBackgroundTaskState {
   type: 'delay'
   delay: number

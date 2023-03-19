@@ -2,12 +2,6 @@ import { DateOnly, fromDateOnlyKey, minusDays } from '../types/dates'
 import { TimeCard, TimeCardStatus, TimeSheet } from '../types/time-sheet'
 import { DataSource } from './data-source'
 
-export const isTimeSheetPage = (): boolean => {
-  const timeSheetElement = document.querySelector('[data-ffid="TimecardGrid"]')
-  const weekEndingElement = document.querySelector('[data-ffid="weekEnding"]')
-  return timeSheetElement !== null && weekEndingElement !== null
-}
-
 const getWeekEnding = (): DateOnly => {
   const weekEndingElement = document.querySelector('[data-ffid="weekEnding"] input') as HTMLInputElement
 
@@ -55,7 +49,7 @@ export const queryTimeSheet = async (): Promise<TimeSheet | null> => {
 
   const weekEnding = getWeekEnding()
 
-  const timeSheet: TimeSheet = {
+  return {
     dates: {
       monday: minusDays(weekEnding, 6),
       tuesday: minusDays(weekEnding, 5),
@@ -67,8 +61,6 @@ export const queryTimeSheet = async (): Promise<TimeSheet | null> => {
     },
     timeCards,
   }
-
-  return timeSheet
 }
 
 const getProjectName = (timeCardElement: HTMLElement): string | null => {

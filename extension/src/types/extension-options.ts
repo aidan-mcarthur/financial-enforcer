@@ -7,5 +7,3 @@ export const ExtensionOptions = z.object({
   gifDataUrl: z.string(),
 })
 export type ExtensionOptions = z.infer<typeof ExtensionOptions>
-
-export const isExtensionOptions = (input: any): input is ExtensionOptions => ExtensionOptions.safeParse(input).success

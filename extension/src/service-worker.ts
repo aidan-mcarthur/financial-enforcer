@@ -70,7 +70,7 @@ const main = async () => {
 
     if (extensionOptions.soundDataUrl !== lastSoundDataUrl) {
       lastSoundDataUrl = extensionOptions.soundDataUrl
-      cancelSound()
+      await cancelSound()
     }
 
     if (shouldNotify) {

@@ -27,7 +27,7 @@ const removeSelectedFromAll = () => {
 
 let soundPreviewAudio: HTMLAudioElement | null = null
 
-const playSoundPreview = (thumbnail: HTMLImageElement) => {
+const playSoundPreview = async (thumbnail: HTMLImageElement) => {
   if (!soundPreviewAudio) {
     soundPreviewAudio = new Audio()
   }
@@ -36,25 +36,25 @@ const playSoundPreview = (thumbnail: HTMLImageElement) => {
   soundPreviewAudio.currentTime = 0
   soundPreviewAudio.src = thumbnail.getAttribute('data-sound-src') as string
   soundPreviewAudio.volume = 1
-  soundPreviewAudio.play()
+  await soundPreviewAudio.play()
 }
 
-const selectSound = (thumbnail: HTMLImageElement, silent: boolean) => {
+const selectSound = async (thumbnail: HTMLImageElement, silent: boolean) => {
   removeSelectedFromAll()
   thumbnail.classList.add('selected')
 
   if (!silent) {
-    playSoundPreview(thumbnail)
+    await playSoundPreview(thumbnail)
   }
 }
 
-const createSingleSound = (
+const createSingleSound = async (
   source: string,
   thumbnailSource: string,
   title: string,
   isSelected: boolean,
   isCustomInput: boolean,
-): HTMLImageElement => {
+): Promise<HTMLImageElement> => {
   const presetSoundThumbnail = document.createElement('img') as HTMLImageElement
 
   presetSoundThumbnail.src = thumbnailSource
@@ -62,7 +62,7 @@ const createSingleSound = (
   presetSoundThumbnail.title = title
 
   if (isSelected) {
-    selectSound(presetSoundThumbnail, true)
+    await selectSound(presetSoundThumbnail, true)
   }
 
   const soundSelector = getSoundSelector()
@@ -72,8 +72,8 @@ const createSingleSound = (
     presetSoundThumbnail.classList.add('custom-input')
   }
 
-  presetSoundThumbnail.onclick = () => {
-    selectSound(presetSoundThumbnail, false)
+  presetSoundThumbnail.onclick = async () => {
+    await selectSound(presetSoundThumbnail, false)
   }
 
   return presetSoundThumbnail
@@ -109,12 +109,12 @@ const createSoundUploader = () => {
     if (customSoundThumbnail) {
       customSoundThumbnail.setAttribute('data-sound-src', dataUrl)
       customSoundThumbnail.title = soundInput.files[0].name
-      selectSound(customSoundThumbnail, true)
-      playSoundPreview(customSoundThumbnail)
+      await selectSound(customSoundThumbnail, true)
+      await playSoundPreview(customSoundThumbnail)
       return
     }
 
-    const newCustomSoundThumbnail = createSingleSound(
+    const newCustomSoundThumbnail = await createSingleSound(
       dataUrl,
       'sounds/thumbnail.png',
       soundInput.files[0].name,
@@ -122,7 +122,7 @@ const createSoundUploader = () => {
       true,
     )
     soundSelector.insertBefore(newCustomSoundThumbnail, soundInputLabel)
-    playSoundPreview(newCustomSoundThumbnail)
+    await playSoundPreview(newCustomSoundThumbnail)
   })
 
   return soundInput
@@ -134,7 +134,7 @@ interface PresetDetailSingle {
   title: string
 }
 
-const createSoundPresets = (extensionOptions: ExtensionOptions) => {
+const createSoundPresets = async (extensionOptions: ExtensionOptions) => {
   const presetSoundCount = 0
 
   const presetSoundDetails: PresetDetailSingle[] = [
@@ -154,7 +154,7 @@ const createSoundPresets = (extensionOptions: ExtensionOptions) => {
   }
 
   for (const presetSoundDetailsSingle of presetSoundDetails) {
-    createSingleSound(
+    await createSingleSound(
       presetSoundDetailsSingle.url,
       presetSoundDetailsSingle.thumbnailUrl,
       presetSoundDetailsSingle.title,
@@ -165,11 +165,11 @@ const createSoundPresets = (extensionOptions: ExtensionOptions) => {
   }
 }
 
-export const createSoundSelector = (extensionOptions: ExtensionOptions) => {
-  createSoundPresets(extensionOptions)
+export const createSoundSelector = async (extensionOptions: ExtensionOptions) => {
+  await createSoundPresets(extensionOptions)
 
   if (extensionOptions.soundDataUrl.startsWith('data:')) {
-    createSingleSound(extensionOptions.soundDataUrl, 'sounds/thumbnail.png', 'Your Upload', true, false)
+    await createSingleSound(extensionOptions.soundDataUrl, 'sounds/thumbnail.png', 'Your Upload', true, false)
   }
 
   return createSoundUploader()

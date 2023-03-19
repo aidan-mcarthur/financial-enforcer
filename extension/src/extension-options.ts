@@ -17,7 +17,7 @@ const main = async () => {
   const extensionOptions = await getExtensionOptions()
 
   createGifSelector(extensionOptions)
-  createSoundSelector(extensionOptions)
+  await createSoundSelector(extensionOptions)
 
   endOfWeekTimesheetReminder.checked = extensionOptions.endOfWeekTimesheetReminder
   dailyTimeEntryReminder.checked = extensionOptions.dailyTimeEntryReminder
