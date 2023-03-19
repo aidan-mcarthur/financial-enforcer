@@ -1,4 +1,4 @@
-# Financial Enforcer
+# FinancialEnforcer
 A companion tool to ensure that you save and submit your FinancialForce timecard.
 
 # Local Development
@@ -29,4 +29,4 @@ $ npm run test
 
 # License
 
-Financial Enforcer is license under the [MIT license](./LICENSE)
+FinancialEnforcer is license under the [MIT license](./LICENSE)
