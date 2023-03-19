@@ -152,11 +152,15 @@ jobs:
         run: cp -R build/website/dist/* gh-pages/docs/
       - name: Create Version Text File
         run: echo "$GITHUB_SHA" > gh-pages/docs/version.txt
-      - name: Download published extension artifact
+      - name: Download Published Extension Artifact
+        id: download-extension
         uses: actions/download-artifact@v3
         with:
           name: dist
-          path: gh-pages/docs/financial-enforcer.zip
+      - name: Copy Published Extension Artifact to Docs
+        run: |
+          FE_ZIP_PATH=$(ls ${{steps.download.outputs.download-path}}/financial-enforcer-*.zip)
+          cp "$FE_ZIP_PATH" gh-pages/docs/financial-enforcer.zip
       - name: Stage Pages
         working-directory: gh-pages/docs
         run: git add -A
