@@ -11,11 +11,16 @@ jobs:
     name: Publish Test Results
     runs-on: ubuntu-latest
     steps:
-      - name: Download Build Artifact
-        uses: actions/download-artifact@v3
+      - name: Download Artifact
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v2
         with:
+          github_token: ${{secrets.SERVICE_PAT}}
+          workflow: build-and-test.yml
+          run_id: ${{ github.event.workflow_run.id }}
           name: build-output
           path: build/
+          if_no_artifact_found: fail
       - name: Report Coverage
         uses: romeovs/lcov-reporter-action@v0.2.16
         with:
