@@ -1,6 +1,7 @@
 {
   "name": "financial-enforcer-extension",
   "license": "MIT",
+  "private": true,
   "scripts": {
     "build": "tsc && ts-node build.ts",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx src/",

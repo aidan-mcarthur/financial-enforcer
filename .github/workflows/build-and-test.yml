@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       commit-hash:
-        required: false
+        required: true
         type: string
 
 jobs:
@@ -14,11 +14,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          path: "repo"
+          path: 'repo'
+          ref: '${{ inputs.commit-hash }}'
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18"
+          node-version: '18'
       - name: Install Website Dependencies
         working-directory: repo/website
         run: npm ci
@@ -34,9 +35,17 @@ jobs:
       - name: Build Website
         working-directory: repo/website
         run: npm run build
+      - name: Create Website Version Text File
+        working-directory: repo/website/dist
+        run: |
+          echo "${{ inputs.commit-hash }}" > version.txt
       - name: Build Documentation
         working-directory: repo/documentation
         run: npm run build
+      - name: Create Documentation Version Page
+        working-directory: repo/documentation/dist
+        run: |
+          echo "This wiki was built from commit hash: ${{ inputs.commit-hash }}" > Version.md
       - name: Lint Extension Source
         working-directory: repo/extension
         run: npm run lint
@@ -46,7 +55,23 @@ jobs:
       - name: Build Extension
         working-directory: repo/extension
         run: npm run build ${{ inputs.commit-hash }}
-      - name: Create build output artifacts
+      - name: Create Extension Version Text File
+        working-directory: repo/extension/dist
+        run: |
+          echo "${{ inputs.commit-hash }}" > version.txt
+      - name: ZIP Extension
+        working-directory: repo/extension
+        run: |
+          npm run package $(git rev-parse --short "$GITHUB_SHA")
+
+          FE_ZIP_NAME=$(ls financial-enforcer-*.zip)
+          echo "ZIP name is $FE_ZIP_NAME"
+          echo "FE_ZIP_NAME=$FE_ZIP_NAME" >> $GITHUB_ENV
+
+          FE_TAG=$(echo "$FE_ZIP_NAME" | sed 's/.*-\([0-9\.]*-[^\.]*\)\..*/\1/')
+          echo "Tag is $FE_TAG"
+          echo "FE_TAG=$FE_TAG" >> $GITHUB_ENV
+      - name: Create Build Output Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: build-output
