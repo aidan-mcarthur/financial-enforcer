@@ -31,6 +31,12 @@ jobs:
       - name: Build Extension
         working-directory: repo/extension
         run: npm run build "$FE_SHORT_COMMIT_HASH"
+      - name: Install Documentation Dependencies
+        working-directory: repo/documentation
+        run: npm install
+      - name: Build Documentation
+        working-directory: repo/documentation
+        run: npm run build
       - name: Install Website Dependencies
         working-directory: repo/website
         run: npm install
@@ -67,7 +73,7 @@ jobs:
       - name: Copy Distribution Folder to Docs
         run: cp -R repo/website/dist/* gh-pages/docs/
       - name: Copy Documentation Folder to Wiki
-        run: cp -R repo/documentation/* wiki/
+        run: cp -R repo/documentation/dist/* wiki/
       - name: Create Version Text File
         run: |
           echo "$GITHUB_SHA" > gh-pages/docs/version.txt
@@ -132,4 +138,3 @@ jobs:
           files: 'repo/extension/${{ env.FE_ZIP_NAME }}'
         env:
           GITHUB_REPOSITORY: FinancialEnforcer/financial-enforcer
-
