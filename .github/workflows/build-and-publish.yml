@@ -63,17 +63,17 @@ jobs:
         with:
           name: build-output
           path: build/
-      - name: Upload ZIP as Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: published-extension
-          path: 'build/extension/${{ env.FE_ZIP_NAME }}'
-          retention-days: 90
       - name: Obtain Tag
         working-directory: repo/extension
         run: |
           FE_TAG=$(cat tag.txt)
           echo "FE_TAG=$FE_TAG" >> $GITHUB_ENV
+      - name: Upload ZIP as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: published-extension
+          path: 'build/extension/financial-enforcer-${{ env.FE_TAG }}.zip'
+          retention-days: 90
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
@@ -82,7 +82,7 @@ jobs:
           tag_name: '${{ env.FE_TAG }}'
           target_commitish: '${{ github.sha }}'
           name: '${{ env.FE_TAG }}'
-          files: 'build/extension/${{ env.FE_ZIP_NAME }}'
+          files: 'build/extension/financial-enforcer-${{ env.FE_TAG }}.zip'
         env:
           GITHUB_REPOSITORY: FinancialEnforcer/financial-enforcer
   publish-website:
@@ -114,8 +114,7 @@ jobs:
         run: cp -R build/website/dist/* gh-pages/docs/
       - name: Copy Published Extension Artifact to Docs
         run: |
-          FE_ZIP_PATH=$(ls build/extension/financial-enforcer-*.zip)
-          cp $FE_ZIP_PATH gh-pages/docs/financial-enforcer.zip
+          cp "build/extension/financial-enforcer-${{ env.FE_TAG }}.zip" gh-pages/docs/financial-enforcer.zip
       - name: Stage Pages
         working-directory: gh-pages/docs
         run: git add -A

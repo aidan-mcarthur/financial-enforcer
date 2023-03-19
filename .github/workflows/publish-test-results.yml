@@ -9,7 +9,6 @@ on:
 jobs:
   publish-test-results:
     name: Publish Test Results
-    needs: build-and-test
     runs-on: ubuntu-latest
     steps:
       - name: Download Build Artifact

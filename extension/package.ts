@@ -5,20 +5,15 @@ import * as process from 'process'
 const args = process.argv.slice(2)
 
 if (args.length !== 1) {
-  console.error('Please specify the commit hash as an argument.')
+  console.error('Please specify the ZIP file name as an argument.')
   process.exit(1)
 }
 
-const commitHash = args[0]
-
-const manifest = fs.readFileSync('package/manifest.json', 'utf8')
-const manifestObj = JSON.parse(manifest)
-const version = manifestObj.version as string
-const fullVersion = `${version}-${commitHash}`
+const zipFileName = args[0]
 
 const sourceDir = 'dist'
 
-const output = fs.createWriteStream(`financial-enforcer-${fullVersion}.zip`)
+const output = fs.createWriteStream(zipFileName)
 const archive = archiver('zip')
 
 archive.on('error', function (err: any) {
