@@ -2,6 +2,10 @@ name: Build & Test
 
 on:
   workflow_call:
+    inputs:
+      commit-hash:
+        required: false
+        type: string
 
 jobs:
   build:
@@ -42,7 +46,7 @@ jobs:
         run: npm run test
       - name: Build Extension
         working-directory: repo/extension
-        run: npm run build
+        run: npm run build ${{ inputs.build-hash }}
       - name: Create build output artifacts
         uses: actions/upload-artifact@v3
         with:

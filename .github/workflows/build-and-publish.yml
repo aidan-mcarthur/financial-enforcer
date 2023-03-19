@@ -8,9 +8,70 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  commit-hash:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
+        with:
+          path: 'repo'
+          fetch-depth: 0
+      - name: Get Short Commit Hash
+        id: set-commit-hash
+        working-directory: repo
+        run: |
+          FE_SHORT_COMMIT_HASH=$(git rev-parse --short HEAD)
+          echo "Short commit hash is $FE_SHORT_COMMIT_HASH"
+          echo "FE_SHORT_COMMIT_HASH=$FE_SHORT_COMMIT_HASH" >> $GITHUB_OUTPUT
+  build-and-test:
+    name: Build & Test
+    uses: ./.github/workflows/build-and-test.yml
+    needs: commit-hash
+    with:
+      commit-hash: ${{ steps.set-commit-hash.outputs.FE_SHORT_COMMIT_HASH }}
+  publish-documentation:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: build-output
+          path: build/
+      - name: Checkout Wiki
+        uses: actions/checkout@v3
+        with:
+          repository: ${{github.repository}}.wiki
+          ref: 'master'
+          token: '${{ secrets.SERVICE_PAT }}'
+          path: 'wiki'
+      - name: Remove Existing Wiki Contents
+        working-directory: wiki
+        run: |
+          git rm -rf .
+          git clean -fxd
+      - name: Copy Documentation Folder to Wiki
+        run: cp -R build/documentation/dist/* wiki/
+      - name: Stage Wiki
+        working-directory: wiki
+        run: git add -A
+      - name: Commit Wiki
+        working-directory: wiki
+        run: |
+          git config --global user.email "financialenforcerapp@gmail.com"
+          git config --global user.name "Financial Enforcer Service Account"
+          git commit -m "Wiki for $GITHUB_SHA"
+      - name: Push Wiki
+        working-directory: wiki
+        run: git push origin master
+  publish-website:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: build-output
+          path: build/
       - uses: actions/checkout@v3
         with:
           path: 'repo'
@@ -19,57 +80,15 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-      - name: Get Short Commit Hash
-        working-directory: repo
-        run: |
-          FE_SHORT_COMMIT_HASH=$(git rev-parse --short HEAD)
-          echo "Short commit hash is $FE_SHORT_COMMIT_HASH"
-          echo "FE_SHORT_COMMIT_HASH=$FE_SHORT_COMMIT_HASH" >> $GITHUB_ENV
-      - name: Install Extension Dependencies
-        working-directory: repo/extension
-        run: npm ci
-      - name: Install Documentation Dependencies
-        working-directory: repo/documentation
-        run: npm ci
-      - name: Install Website Dependencies
-        working-directory: repo/website
-        run: npm ci
-      - name: Snyk Scan
-        uses: snyk/actions/node@master
-        with:
-          args: 'repo/extension repo/website repo/documentation'
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      - name: Build Extension
-        working-directory: repo/extension
-        run: npm run build "$FE_SHORT_COMMIT_HASH"
-      - name: Build Documentation
-        working-directory: repo/documentation
-        run: npm run build
-      - name: Build Website
-        working-directory: repo/website
-        run: npm run build
       - name: Checkout GH Pages
         uses: actions/checkout@v3
         with:
           ref: 'gh-pages'
           token: '${{ secrets.SERVICE_PAT }}'
           path: 'gh-pages'
-      - name: Checkout Wiki
-        uses: actions/checkout@v3
-        with:
-          repository: ${{github.repository}}.wiki
-          ref: 'master'
-          token: '${{ secrets.SERVICE_PAT }}'
-          path: 'wiki'
       - name: Remove Existing Docs Directory
         working-directory: gh-pages
         run: rm -rf docs
-      - name: Remove Existing Wiki Contents
-        working-directory: wiki
-        run: |
-          git rm -rf .
-          git clean -fxd
       - name: Create Docs Directory
         working-directory: gh-pages
         run: mkdir -p docs
@@ -77,14 +96,12 @@ jobs:
         working-directory: gh-pages
         run: echo 'www.financialenforcer.com' > docs/CNAME
       - name: Copy Distribution Folder to Docs
-        run: cp -R repo/website/dist/* gh-pages/docs/
-      - name: Copy Documentation Folder to Wiki
-        run: cp -R repo/documentation/dist/* wiki/
+        run: cp -R build/website/dist/* gh-pages/docs/
       - name: Create Version Text File
         run: |
           echo "$GITHUB_SHA" > gh-pages/docs/version.txt
           echo "This wiki was built from $GITHUB_SHA" > wiki/Version.md
-          echo "$GITHUB_SHA" > repo/extension/dist/version.txt
+          echo "$GITHUB_SHA" > build/extension/dist/version.txt
       - name: ZIP Extension
         working-directory: repo/extension
         run: |
@@ -92,7 +109,7 @@ jobs:
           echo "Long commit hash is $FE_LONG_COMMIT_HASH"
           echo "FE_LONG_COMMIT_HASH=$FE_LONG_COMMIT_HASH" >> $GITHUB_ENV
 
-          npm run package "$FE_SHORT_COMMIT_HASH"
+          npm run package ${{ steps.set-commit-hash.outputs.FE_SHORT_COMMIT_HASH }}
 
           FE_ZIP_NAME=$(ls financial-enforcer-*.zip)
           echo "ZIP name is $FE_ZIP_NAME"
@@ -106,27 +123,15 @@ jobs:
       - name: Stage Pages
         working-directory: gh-pages/docs
         run: git add -A
-      - name: Stage Wiki
-        working-directory: wiki
-        run: git add -A
       - name: Commit Pages
         working-directory: gh-pages
         run: |
           git config --global user.email "financialenforcerapp@gmail.com"
           git config --global user.name "Financial Enforcer Service Account"
           git commit -m "Pages for $GITHUB_SHA"
-      - name: Commit Wiki
-        working-directory: wiki
-        run: |
-          git config --global user.email "financialenforcerapp@gmail.com"
-          git config --global user.name "Financial Enforcer Service Account"
-          git commit -m "Wiki for $GITHUB_SHA"
       - name: Push Pages
         working-directory: gh-pages
         run: git push origin gh-pages
-      - name: Push Wiki
-        working-directory: wiki
-        run: git push origin master
       - name: 'Upload ZIP as Artifact'
         uses: actions/upload-artifact@v3
         with:
