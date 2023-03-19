@@ -19,7 +19,7 @@ const main = async () => {
     const summary = summarizeTimeSheet(timeSheet)
 
     daysSubmittedElement.innerHTML = summary.totalDaysSubmitted.toString(10)
-    daysSavedElement.innerHTML = summary.totalDaysSubmitted.toString(10)
+    daysSavedElement.innerHTML = summary.totalDaysSaved.toString(10)
     timeLeftElement.innerHTML = summary.timeRemaining
 
     statusElement.style.display = 'block'

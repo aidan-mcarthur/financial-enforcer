@@ -44,7 +44,9 @@ const determineDaysFilledFromTimeCards = (timeSheet: TimeSheet): DaysFilled => {
 const determineTotalDaysSubmittedFromTimeCards = (timeSheet: TimeSheet): number => {
   let totalDaysSubmitted = 0
 
-  for (const timeCard of timeSheet.timeCards.filter((timeCard) => timeCard.status === 'submitted')) {
+  for (const timeCard of timeSheet.timeCards.filter(
+    (timeCard) => timeCard.status === 'submitted' || timeCard.status === 'approved',
+  )) {
     for (const day of Object.keys(timeCard.hours)) {
       const dayOfWeek = day as DayOfWeek
       if (timeCard.hours[dayOfWeek] > 0) {
