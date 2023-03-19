@@ -2,12 +2,10 @@ name: Security
 
 on:
   workflow_call:
-    secrets:
-      SNYK_TOKEN:
-        required: true
 
 jobs:
   security:
+    name: Snyk
     runs-on: ubuntu-latest
     steps:
       - name: Download build artifact

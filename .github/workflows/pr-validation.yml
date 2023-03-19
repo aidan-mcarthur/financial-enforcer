@@ -11,6 +11,7 @@ jobs:
   build-and-test:
     uses: ./.github/workflows/build-and-test.yml
   report-coverage:
+    name: Report Coverage
     runs-on: ubuntu-latest
     steps:
       - name: Download build artifact
@@ -24,4 +25,3 @@ jobs:
           lcov-file: ./repo/extension/coverage/lcov.info
   security:
     uses: ./.github/workflows/security.yml
-    secrets: inherit
