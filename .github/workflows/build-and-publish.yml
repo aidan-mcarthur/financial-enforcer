@@ -8,26 +8,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  commit-hash:
-    name: Get the commit hash
-    runs-on: ubuntu-latest
-    outputs:
-      commit-hash: ${{ steps.set-commit-hash.outputs.FE_SHORT_COMMIT_HASH }}
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          path: 'repo'
-      - name: Get Short Commit Hash
-        id: set-commit-hash
-        working-directory: repo
-        run: |
-          FE_SHORT_COMMIT_HASH=$(git rev-parse --short HEAD)
-          echo "Short commit hash is $FE_SHORT_COMMIT_HASH"
-          echo "FE_SHORT_COMMIT_HASH=$FE_SHORT_COMMIT_HASH" >> $GITHUB_OUTPUT
   build-and-test:
     name: Build & Test
     uses: ./.github/workflows/build-and-test.yml
-    needs: commit-hash
     with:
       commit-hash: ${{ needs.commit-hash.outputs.commit-hash }}
   publish-documentation:
@@ -70,7 +53,7 @@ jobs:
         run: git push origin master
   publish-extension:
     name: Publish Extension
-    needs: [commit-hash, build-and-test]
+    needs: build-and-test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -92,12 +75,8 @@ jobs:
       - name: ZIP Extension
         working-directory: repo/extension
         run: |
-          FE_LONG_COMMIT_HASH=$(git rev-parse HEAD)
-          echo "Long commit hash is $FE_LONG_COMMIT_HASH"
-          echo "FE_LONG_COMMIT_HASH=$FE_LONG_COMMIT_HASH" >> $GITHUB_ENV
-          
           npm ci
-          npm run package ${{ needs.commit-hash.outputs.commit-hash }}
+          npm run package $(git rev-parse --short "$GITHUB_SHA")
 
           FE_ZIP_NAME=$(ls financial-enforcer-*.zip)
           echo "ZIP name is $FE_ZIP_NAME"
@@ -118,7 +97,7 @@ jobs:
           body: 'See the commit hash for information.'
           token: ${{ secrets.SERVICE_PAT }}
           tag_name: '${{ env.FE_TAG }}'
-          target_commitish: '${{ env.FE_LONG_COMMIT_HASH }}'
+          target_commitish: '${{ github.sha }}'
           name: '${{ env.FE_TAG }}'
           files: 'repo/extension/${{ env.FE_ZIP_NAME }}'
         env:
