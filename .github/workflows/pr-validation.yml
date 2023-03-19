@@ -9,9 +9,11 @@ on:
 
 jobs:
   build-and-test:
+    name: Build & Test
     uses: ./.github/workflows/build-and-test.yml
   report-coverage:
     name: Report Coverage
+    needs: build-and-test
     runs-on: ubuntu-latest
     steps:
       - name: Download build artifact
@@ -24,4 +26,6 @@ jobs:
           github-token: ${{ secrets.SERVICE_PAT }}
           lcov-file: ./repo/extension/coverage/lcov.info
   security:
+    name: Security
+    needs: build-and-test
     uses: ./.github/workflows/security.yml
