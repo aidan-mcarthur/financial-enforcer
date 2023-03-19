@@ -71,7 +71,7 @@ jobs:
       - name: Create Version Text File
         run: |
           echo "$GITHUB_SHA" > gh-pages/docs/version.txt
-          echo "$GITHUB_SHA" > wiki/version.txt
+          echo "This wiki was built from $GITHUB_SHA" > wiki/Version.md
           echo "$GITHUB_SHA" > repo/extension/dist/version.txt
       - name: ZIP Extension
         working-directory: repo/extension
