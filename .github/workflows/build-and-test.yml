@@ -59,6 +59,7 @@ jobs:
         with:
           name: build-output
           retention-days: 5
+          if-no-files-found: error
           path: |
             repo/documentation/dist/
             repo/extension/dist/

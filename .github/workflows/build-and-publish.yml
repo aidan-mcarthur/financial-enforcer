@@ -74,6 +74,7 @@ jobs:
           name: published-extension
           path: 'build/extension/financial-enforcer-${{ env.FE_TAG }}.zip'
           retention-days: 90
+          if-no-files-found: error
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
