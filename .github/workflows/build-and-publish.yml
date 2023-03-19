@@ -32,6 +32,7 @@ jobs:
     with:
       commit-hash: ${{ needs.commit-hash.outputs.commit-hash }}
   publish-documentation:
+    name: Publish Documentation
     needs: build-and-test
     runs-on: ubuntu-latest
     steps:
@@ -55,8 +56,7 @@ jobs:
       - name: Copy Documentation Folder to Wiki
         run: cp -R build/documentation/dist/* wiki/
       - name: Create Version File
-        run: |
-          echo "This wiki was built from $GITHUB_SHA" > wiki/Version.md
+        run: echo "This wiki was built from $GITHUB_SHA" > wiki/Version.md
       - name: Stage Wiki
         working-directory: wiki
         run: git add -A
@@ -69,8 +69,9 @@ jobs:
       - name: Push Wiki
         working-directory: wiki
         run: git push origin master
-  publish-website:
-    needs: build-and-test
+  publish-extension:
+    name: Publish Extension
+    needs: [commit-hash, build-and-test]
     runs-on: ubuntu-latest
     steps:
       - name: Download build artifact
@@ -78,14 +79,56 @@ jobs:
         with:
           name: build-output
           path: build/
-      - uses: actions/checkout@v3
-        with:
-          path: 'repo'
-          fetch-depth: 0
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
+      - name: Create Version Text File
+        run: echo "$GITHUB_SHA" > build/extension/dist/version.txt
+      - name: ZIP Extension
+        working-directory: repo/extension
+        run: |
+          FE_LONG_COMMIT_HASH=$(git rev-parse HEAD)
+          echo "Long commit hash is $FE_LONG_COMMIT_HASH"
+          echo "FE_LONG_COMMIT_HASH=$FE_LONG_COMMIT_HASH" >> $GITHUB_ENV
+
+          npm ci
+          npm run package ${{ needs.commit-hash.outputs.commit-hash }}
+
+          FE_ZIP_NAME=$(ls financial-enforcer-*.zip)
+          echo "ZIP name is $FE_ZIP_NAME"
+          echo "FE_ZIP_NAME=$FE_ZIP_NAME" >> $GITHUB_ENV
+
+          FE_TAG=$(echo "$FE_ZIP_NAME" | sed 's/.*-\([0-9\.]*-[^\.]*\)\..*/\1/')
+          echo "Tag is $FE_TAG"
+          echo "FE_TAG=$FE_TAG" >> $GITHUB_ENV
+      - name: Upload ZIP as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist
+          path: 'repo/extension/${{ env.FE_ZIP_NAME }}'
+          retention-days: 90
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body: 'See the commit hash for information.'
+          token: ${{ secrets.SERVICE_PAT }}
+          tag_name: '${{ env.FE_TAG }}'
+          target_commitish: '${{ env.FE_LONG_COMMIT_HASH }}'
+          name: '${{ env.FE_TAG }}'
+          files: 'repo/extension/${{ env.FE_ZIP_NAME }}'
+        env:
+          GITHUB_REPOSITORY: FinancialEnforcer/financial-enforcer
+  publish-website:
+    name: Publish Website
+    needs: [build-and-test, publish-extension]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: build-output
+          path: build/
       - name: Checkout GH Pages
         uses: actions/checkout@v3
         with:
@@ -104,27 +147,12 @@ jobs:
       - name: Copy Distribution Folder to Docs
         run: cp -R build/website/dist/* gh-pages/docs/
       - name: Create Version Text File
-        run: |
-          echo "$GITHUB_SHA" > gh-pages/docs/version.txt
-          echo "$GITHUB_SHA" > build/extension/dist/version.txt
-      - name: ZIP Extension
-        working-directory: repo/extension
-        run: |
-          FE_LONG_COMMIT_HASH=$(git rev-parse HEAD)
-          echo "Long commit hash is $FE_LONG_COMMIT_HASH"
-          echo "FE_LONG_COMMIT_HASH=$FE_LONG_COMMIT_HASH" >> $GITHUB_ENV
-
-          npm run package ${{ needs.commit-hash.outputs.commit-hash }}
-
-          FE_ZIP_NAME=$(ls financial-enforcer-*.zip)
-          echo "ZIP name is $FE_ZIP_NAME"
-          echo "FE_ZIP_NAME=$FE_ZIP_NAME" >> $GITHUB_ENV
-
-          FE_TAG=$(echo "$FE_ZIP_NAME" | sed 's/.*-\([0-9\.]*-[^\.]*\)\..*/\1/')
-          echo "Tag is $FE_TAG"
-          echo "FE_TAG=$FE_TAG" >> $GITHUB_ENV
-      - name: Copy Extension to Docs
-        run: cp repo/extension/financial-enforcer-*.zip gh-pages/docs/financial-enforcer.zip
+        run: echo "$GITHUB_SHA" > gh-pages/docs/version.txt
+      - name: Download published extension artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: dist
+          path: gh-pages/docs/financial-enforcer.zip
       - name: Stage Pages
         working-directory: gh-pages/docs
         run: git add -A
@@ -137,20 +165,3 @@ jobs:
       - name: Push Pages
         working-directory: gh-pages
         run: git push origin gh-pages
-      - name: 'Upload ZIP as Artifact'
-        uses: actions/upload-artifact@v3
-        with:
-          name: dist
-          path: 'repo/extension/${{ env.FE_ZIP_NAME }}'
-          retention-days: 90
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          body: 'See the commit hash for information.'
-          token: ${{ secrets.SERVICE_PAT }}
-          tag_name: '${{ env.FE_TAG }}'
-          target_commitish: '${{ env.FE_LONG_COMMIT_HASH }}'
-          name: '${{ env.FE_TAG }}'
-          files: 'repo/extension/${{ env.FE_ZIP_NAME }}'
-        env:
-          GITHUB_REPOSITORY: FinancialEnforcer/financial-enforcer
