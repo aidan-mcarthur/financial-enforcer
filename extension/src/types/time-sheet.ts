@@ -1,10 +1,20 @@
 import { z } from 'zod'
-import { DateOnly } from './dates'
+import { DateOnly, DayOfWeek } from './dates'
 
-export const TimeCardStatus = z.enum(['submitted', 'saved', 'unsaved', 'approved'])
+export const TimeCardStatus = z.union([
+  z.literal('submitted'),
+  z.literal('saved'),
+  z.literal('unsaved'),
+  z.literal('approved'),
+])
 export type TimeCardStatus = z.infer<typeof TimeCardStatus>
 
-export const WeekStatus = z.enum(['no-time-cards', 'some-unsaved', 'some-unsubmitted', 'all-submitted-or-approved'])
+export const WeekStatus = z.union([
+  z.literal('no-time-cards'),
+  z.literal('some-unsaved'),
+  z.literal('some-unsubmitted'),
+  z.literal('all-submitted-or-approved'),
+])
 export type WeekStatus = z.infer<typeof WeekStatus>
 
 export const Hours = z.object({

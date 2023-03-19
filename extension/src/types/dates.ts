@@ -7,7 +7,15 @@ export const DateOnly = z.object({
 })
 export type DateOnly = z.infer<typeof DateOnly>
 
-export const DayOfWeek = z.enum(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])
+export const DayOfWeek = z.union([
+  z.literal('monday'),
+  z.literal('tuesday'),
+  z.literal('wednesday'),
+  z.literal('thursday'),
+  z.literal('friday'),
+  z.literal('saturday'),
+  z.literal('sunday'),
+])
 export type DayOfWeek = z.infer<typeof DayOfWeek>
 
 export const toDateOnlyKey = (dateOnly: DateOnly): string => {
