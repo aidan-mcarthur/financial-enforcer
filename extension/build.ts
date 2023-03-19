@@ -55,6 +55,8 @@ const build = async () => {
   }
 
   fs.writeFileSync('dist/version.js', `window.FinancialEnforcerVersion = ${JSON.stringify(fullVersion)};`)
+  fs.writeFileSync('dist/version.txt', commitHash)
+  fs.writeFileSync('dist/tag.txt', fullVersion)
 }
 
 build()

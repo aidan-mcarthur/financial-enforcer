@@ -1,6 +1,9 @@
 import * as fs from 'fs'
 import * as path from 'path'
 
+const args = process.argv.slice(2)
+const commitHash = args[0] || 'dev'
+
 interface GenerateSwimlanesImageRequestBody {
   text: string
 }
@@ -55,6 +58,8 @@ const build = async () => {
     const imageData = await response.arrayBuffer()
     fs.writeFileSync('dist/' + path.basename(swimlanesFile) + '.png', Buffer.from(imageData))
   }
+
+  fs.writeFileSync('dist/Version.md', `This is version ${commitHash} of the documentation.`)
 }
 
 build()
