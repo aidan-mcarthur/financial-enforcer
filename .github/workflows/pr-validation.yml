@@ -29,3 +29,4 @@ jobs:
     name: Security
     needs: build-and-test
     uses: ./.github/workflows/security.yml
+    secrets: inherit
