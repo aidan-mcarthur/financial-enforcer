@@ -1,0 +1,24 @@
+name: Publish Test Results
+
+on:
+  workflow_run:
+    workflows: [PR Validation]
+    types:
+      - completed
+
+jobs:
+  publish-test-results:
+    name: Publish Test Results
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: build-output
+          path: build/
+      - name: Report Coverage
+        uses: romeovs/lcov-reporter-action@v0.2.16
+        with:
+          github-token: ${{ secrets.SERVICE_PAT }}
+          lcov-file: ./build/extension/coverage/lcov.info

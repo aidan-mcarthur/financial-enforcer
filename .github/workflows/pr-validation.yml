@@ -4,29 +4,9 @@ on:
   pull_request:
     branches: [main]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
 jobs:
   build-and-test:
     name: Build & Test
     uses: ./.github/workflows/build-and-test.yml
-  report-coverage:
-    name: Report Coverage
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: build-output
-          path: build/
-      - name: Report Coverage
-        uses: romeovs/lcov-reporter-action@v0.2.16
-        with:
-          github-token: ${{ secrets.SERVICE_PAT }}
-          lcov-file: ./build/extension/coverage/lcov.info
-  security:
-    name: Security
-    uses: ./.github/workflows/security.yml
-    secrets: inherit
+    with:
+      commit-hash: ${{ github.sha }}
