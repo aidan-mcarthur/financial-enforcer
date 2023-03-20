@@ -29,3 +29,5 @@ jobs:
           args: 'repo/extension repo/website repo/documentation'
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Bad
+        run: Bad
